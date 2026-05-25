@@ -1,0 +1,32 @@
+@page
+@using DataBaseModel
+@{
+    CAPA_NEGOCIO.SystemConfig.SystemConfigImpl? SystemConfig = Config.SystemConfig();
+}
+<style>
+    @@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
+</style>
+<script>
+    localStorage.setItem("TITULO", '@SystemConfig.TITULO');
+    localStorage.setItem("SUB_TITULO", '@SystemConfig.SUB_TITULO');
+    localStorage.setItem("NOMBRE_EMPRESA", '@SystemConfig.NOMBRE_EMPRESA');
+    localStorage.setItem("MEDIA_IMG_PATH", '@SystemConfig.MEDIA_IMG_PATH');
+    localStorage.setItem("LOGO_PRINCIPAL", '@SystemConfig.LOGO_PRINCIPAL');
+</script>
+<link rel="stylesheet" href="~/WDevCore/StyleModules/css/variables.css">
+<script type="module">
+    import { WChatComponent } from "/WDevCore/WComponents/WChatComponent.js";
+    window.onload = () => {
+        MainContainer.append(new WChatComponent({
+            Url: "../api/WebhookSsmpIA",
+            UrlGetConfigData: "../api/ApiEntityHelpdesk/getTbl_CommentsWeb",
+            UrlSearch: "../api/ApiEntityHelpdesk/getTbl_CommentsWeb",
+            UrlAdd: "../api/ApiEntityHelpdesk/saveTbl_CommentsWeb",
+            UserIdProp: "Id_User",
+            CommentsIdentify: undefined,
+            CommentsIdentifyName: "Id_Case",
+            AddObject: false
+        }));
+    } 
+</script>
+</div>

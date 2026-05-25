@@ -1,0 +1,24 @@
+@page
+@using API.Controllers;
+@using APPCORE.Security;
+@{
+    string? identify = HttpContext.Session?.GetString("sessionKey") ?? "";  
+    /*var admin = new Security_Users { Id_User = 1}.Find<Security_Users>();
+    admin.Password = EncrypterServices.Encrypt("Acceso1");
+    admin.Update();*/
+
+    if (!SecurityController.Auth(identify))
+    {
+        Response.Redirect("./Security/Login");
+        return;
+    } else if (!SecurityController.HavePermission(identify, Permissions.UPDATE_FAMILY_DATA) &&  SecurityController.HavePermission(identify, Permissions.UPDATE_FAMILY_DATA))
+    {
+        Response.Redirect("./update/index");
+        return;
+    }
+
+}
+@if (!SecurityController.HavePermission(HttpContext.Session.GetString("sessionKey"), Permissions.ADMIN_PANEL_ACCESS))
+{  
+    
+}

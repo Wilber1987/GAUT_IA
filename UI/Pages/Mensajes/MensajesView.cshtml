@@ -1,0 +1,19 @@
+@page
+@using API.Controllers
+@using APPCORE.Security
+@using DataBaseModel
+@{
+    string? identify = HttpContext?.Session.GetString("sessionKey");
+    var SystemConfig = Config.SystemConfig();
+    if (!SecurityController.HavePermission(identify, Permissions.SEND_MESSAGE))
+    {
+        Response.Redirect("/");
+        return;
+    }
+}
+<script type="module">
+    import { MensajesView } from "/Notificaciones_Mensajeria/Gestion_Mensajes/MensajesView.mjs";
+    window.onload = () => {
+        MainContainer.append(new MensajesView());
+    } 
+</script>

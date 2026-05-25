@@ -1,0 +1,273 @@
+@page
+@using BusinessLogic.Questionnaires.Mapping
+@using APPCORE
+@using DataBaseModel
+@using System.Text.Json
+@{
+    //https://localhost:7100/Questionnaires/ResolveForm?token=55343901-7872-4546-b25d-e31f528c7db9&id_test=1
+    Layout = null;
+
+    string? token = Request.Query["token"].ToString();
+    string? idTest = Request.Query["id_test"].ToString();
+    bool isValid = !string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(idTest);
+    bool isActive = false;
+    bool isResolved = false;
+    TestSent? testSent = null;
+    Tests? test = null; 
+    string testJson = "null";
+    if (isValid)
+    {
+        testSent = new TestSent().Find<TestSent>(
+            FilterData.Equal("Token", token));
+        test = new Tests().Find<Tests>( FilterData.Equal("Id_test", idTest)); 
+        testJson = test != null ? JsonSerializer.Serialize(test) : "null";
+        if (testSent == null || test == null)
+        {
+            isValid = false;
+        }
+        else
+        {
+            isActive = testSent.State == TestSentEnum.ACTIVE;
+            isResolved = testSent.State == TestSentEnum.FINISH || testSent.State == TestSentEnum.PROCESSED;
+            isValid = testSent.State != TestSentEnum.INACTIVE;
+        }
+    }
+}
+
+@if (!isValid)
+{
+    <div id="AccessDenied" style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: sans-serif;
+        color: #c0392b;
+        background-color: #fff5f5;
+        ">
+        <h2>⚠️ Acceso inválido</h2>
+        <p>Url invalida (<code>token</code> e <code>id_test</code>).</p>
+    </div>
+}
+else if (isResolved)
+{
+    <div id="AccessDenied" style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: sans-serif;
+        color: #02813b;
+        background-color: #fff5f5;
+        ">
+        <h2>Ya ha resuelto este formulario</h2>
+    </div>
+}
+else if (isActive)
+{
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet" />
+        <style>
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+            :root {
+                --brand:       #066ecf;
+                --brand-light: #9db3e0;
+                --brand-mid:   #03105a;
+                --bg:          #F7F6F2;
+                --surface:     #FFFFFF;
+                --text-main:   #2a2b2c;
+                --text-muted:  #808288;
+                --radius:      16px;
+            }
+
+            body {
+                min-height: 100vh;
+                background: var(--bg);
+                font-family: 'DM Sans', sans-serif;
+                color: var(--text-main);
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            /* ── decorative top bar ── */
+            .top-bar {
+                width: 100%;
+                height: 4px;
+                background: linear-gradient(90deg, var(--brand-light) 0%, var(--brand) 50%, var(--brand-mid) 100%);
+            }
+
+            /* ── header ── */
+            header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1.25rem 2.5rem;
+                border-bottom: 1px solid #dee0e5;
+                background: var(--surface);
+            }
+
+            .logo {
+                font-family: 'Fraunces', serif;
+                font-weight: 600;
+                font-size: 1.3rem;
+                color: var(--brand-mid);
+                letter-spacing: -0.02em;
+            }
+
+            .logo span {
+                color: var(--brand);
+            }
+
+            .badge-header {
+                font-size: 0.75rem;
+                font-weight: 500;
+                color: var(--brand-mid);
+                background: var(--brand-light);
+                padding: 4px 12px;
+                border-radius: 99px;
+                letter-spacing: 0.04em;
+            }
+
+            /* ── main layout ── */
+            main {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 3rem 1.5rem 4rem;
+                gap: 2rem;
+            }
+
+            /* ── decorative heading above card ── */
+            .form-heading {
+                text-align: center;
+                max-width: 520px;
+            }
+
+            .form-heading h1 {
+                font-family: 'Fraunces', serif;
+                font-size: clamp(1.5rem, 4vw, 2.2rem);
+                font-weight: 300;
+                color: var(--text-main);
+                line-height: 1.25;
+                margin-bottom: 0.5rem;
+            }
+
+            .form-heading h1 em {
+                font-style: italic;
+                color: var(--brand);
+            }
+
+            .form-heading p {
+                font-size: 0.875rem;
+                color: var(--text-muted);
+                line-height: 1.6;
+            }
+
+            /* ── card that wraps MainBody ── */
+            .form-card {
+                width: 100%;
+                max-width: 1000px;
+                background: var(--surface);
+                border-radius: var(--radius);
+                border: 1px solid #E5E4DE;
+                box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+                padding: 2.5rem 2rem;
+            }
+
+            /* ── decorative blobs (pure CSS, no images) ── */
+            .blob {
+                position: fixed;
+                border-radius: 50%;
+                filter: blur(80px);
+                opacity: 0.35;
+                pointer-events: none;
+                z-index: 0;
+            }
+            .blob-1 {
+                width: 420px; height: 420px;
+                background: #9FE1CB;
+                top: -120px; left: -100px;
+            }
+            .blob-2 {
+                width: 300px; height: 300px;
+                background: #C0DD97;
+                bottom: -80px; right: -60px;
+            }
+
+            main, header { position: relative; z-index: 1; }
+
+            /* ── footer ── */
+            footer {
+                text-align: center;
+                padding: 1.25rem;
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                border-top: 1px solid #E5E4DE;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* ── responsive ── */
+            @@media (max-width: 600px) {
+                header { padding: 1rem 1.25rem; }
+                .form-card { padding: 1.5rem 1rem; }
+                main { padding: 2rem 1rem 3rem; }
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+
+        <div class="top-bar"></div>
+
+        <header>
+            <div class="logo">form<span>·io</span></div>
+            <span class="badge-header">Formulario seguro</span>
+        </header>
+
+        <main>
+            <div class="form-heading">
+                <h1>Complete el <em>cuestionario</em></h1>
+                <p>Sus respuestas son confidenciales y serán procesadas de forma segura.</p>
+            </div>
+
+            <div class="form-card">
+                <div id='MainBody'></div>
+            </div>
+        </main>
+
+        <footer>
+            &copy; @DateTime.Now.Year &mdash; Todos los derechos reservados
+        </footer>
+
+        <link rel="stylesheet" href="~/css/AdminTemplate.css" />
+        <style>
+            body { height: auto; overflow-y: auto; position: unset; }
+        </style>
+        <script>
+            sessionStorage.setItem("to", '@token')
+            sessionStorage.setItem("id", '@idTest')
+        </script>
+        <script type='module'>
+            import { ResolveForm } from "./Views/ResolveForm.js";
+            const test = @Html.Raw(testJson);
+            window.onload = () => {
+                MainBody.append(new ResolveForm({ test: test }));
+            }
+        </script>
+
+    </body>
+    </html>
+}

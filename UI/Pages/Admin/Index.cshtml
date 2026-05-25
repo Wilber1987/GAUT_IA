@@ -1,0 +1,19 @@
+﻿@page
+@using API.Controllers;
+@using APPCORE.Security; 
+@using DataBaseModel;
+@using global::CAPA_NEGOCIO.SystemConfig
+@{  
+
+    if (!SecurityController.IsAdmin(HttpContext.Session.GetString("sessionKey")))
+    {
+        Response.Redirect("/Security/Login");
+        return;
+    }
+
+}
+@if (SecurityController.IsAdmin(HttpContext.Session.GetString("sessionKey")))
+{    
+    <script  src="~/Admin/AdminConfig.js" type="module"></script>
+    
+}

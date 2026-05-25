@@ -1,0 +1,24 @@
+@page
+@using API.Controllers
+@using APPCORE.Security
+@{
+    // Layout = null;
+    if (!SecurityController.Auth(HttpContext.Session.GetString("sessionKey")))
+    {
+        Response.Redirect("../Security/login");
+        return;
+    }
+    if (!SecurityController.HavePermission(Permissions.ADMINISTRAR_USUARIOS.ToString(),
+    HttpContext.Session.GetString("sessionKey")))   
+    {
+        Response.Redirect("../Security/permission_error");
+        return;
+    }
+
+}
+<script type="module">
+    import {SecurityManager} from  "/Admin/SecurityManager.js";
+    window.onload = ()=> {
+        MainContainer.append(new SecurityManager());
+    } 
+</script>

@@ -1,0 +1,39 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/UI/bin/Debug/net8.0/UI.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/UI",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Iniciar Chrome para localhost",
+            "url": "https://localhost:7100",
+            "webRoot": "${workspaceFolder}/UI/wwwroot",
+            "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "/Views/*": "${workspaceFolder}/UI/wwwroot/Views/*",
+                "https://localhost:7010/*": "${workspaceFolder}/UI/wwwroot/*"
+            }
+        }
+    ]
+}
