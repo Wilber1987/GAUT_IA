@@ -23,6 +23,7 @@ namespace CAPA_NEGOCIO.MAPEO
 		public int? Id_User { get; set; }
 		public DateTime? Fecha { get; set; }
         public bool? IsVectorized { get; set; }
+		public string? Token { get;  set; }
 
         public async Task<ResponseService> SaveComment(string identity, Boolean withMail = true)
 		{
@@ -84,6 +85,12 @@ namespace CAPA_NEGOCIO.MAPEO
 			}.Save();
 		}
 		public List<Tbl_Comments> GetComments()
+		{			
+			return Where<Tbl_Comments>(
+				FilterData.Equal("Token", this.Token)
+			);	
+		}
+		public List<Tbl_Comments> GetCommentsByCase()
 		{			
 			return Where<Tbl_Comments>(
 				FilterData.Equal("Id_Case", this.Id_Case)

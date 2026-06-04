@@ -105,7 +105,17 @@ namespace CAPA_NEGOCIO.MAPEO
 
 		public static Tbl_Profile Get_Profile(UserModel User)
 		{
-			return Get_Profile(User.UserId.GetValueOrDefault());
+			var profile = Get_Profile(User.UserId.GetValueOrDefault());
+			if (profile == null)
+			{
+				profile = new Tbl_Profile
+				{
+					Nombres = User.DbUser?.Nombres,
+					Correo_institucional = User.DbUser?.Mail
+				};
+				profile.Id_Perfil = (profile.Save() as Tbl_Profile)?.Id_Perfil;
+			}
+			return profile;
 		}
 
 		public static Tbl_Profile Get_Profile(int UserId)

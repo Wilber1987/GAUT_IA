@@ -19,10 +19,11 @@ namespace DataBaseModel {
        public string? Descripcion_general { get; set; }
        [ManyToOne(TableName = "Cat_Tipo_Preguntas", KeyColumn = "Id_tipo_pregunta", ForeignKeyColumn = "Id_tipo_pregunta")]
        public Cat_Tipo_Preguntas? Cat_Tipo_Preguntas { get; set; }
-       [ManyToOne(TableName = "Tests", KeyColumn = "Id_test", ForeignKeyColumn = "Id_test")]
-       public Tests? Tests { get; set; }
+
+       //[ManyToOne(TableName = "Tests", KeyColumn = "Id_test", ForeignKeyColumn = "Id_test")]
+       //public Tests? Tests { get; set; }
        
        //[OneToMany(TableName = "Resultados_Pregunta_Tests", KeyColumn = "Id_pregunta_test", ForeignKeyColumn = "Id_pregunta_test")]
-       public List<Resultados_Pregunta_Tests>? Resultados_Pregunta_Tests { get; set; }
+       //public List<Resultados_Pregunta_Tests>? Resultados_Pregunta_Tests { get; set; }
    }
 }

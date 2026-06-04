@@ -85,6 +85,7 @@ namespace CAPA_NEGOCIO
 				Estado = CommetsState.Leido,
 				Mail = interaction.UserId,
 				Attach_Files = Response == null ? [interaction.Attach] : [Response],
+				Token = interaction.Token
 			}.Save() as Tbl_Comments;
 
 			interaction.Id_comment = us?.Id_Comentario;
@@ -99,6 +100,7 @@ namespace CAPA_NEGOCIO
 						Fecha = DateTime.Now,
 						Estado = CommetsState.Leido,
 						Mail = "traking_system@soporte.net",
+						Token = interaction.Token
 					};
 					ia.Save();
 				}
@@ -111,6 +113,7 @@ namespace CAPA_NEGOCIO
 						Fecha = DateTime.Now,
 						Estado = CommetsState.Leido,
 						Mail = "IA@soporte.net",
+						Token = interaction.Token
 					};
 					ia.Save();
 				}

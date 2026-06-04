@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using APPCORE;
+using CAPA_NEGOCIO.MAPEO;
 
 namespace CAPA_NEGOCIO.Templates.Model
 {
@@ -11,8 +12,15 @@ namespace CAPA_NEGOCIO.Templates.Model
         [PrimaryKey(Identity = true)]
         public int? Id_Template { get; set; }
         public TemplatesDataType? Descripcion { get; set; }
+
         [JsonProp]
         public List<Section>? Sections { get; set; }
+        public string? Token { get;  set; }
+        public DateTime? Fecha { get;  set; }
+        public int? Id_Perfil { get; set; }
+
+        [ManyToOne(TableName = "Tbl_Profile", KeyColumn = "Id_Perfil", ForeignKeyColumn = "Id_Perfil")]
+		public  Tbl_Profile? Tbl_Profile { get; set; }
 
     }
 

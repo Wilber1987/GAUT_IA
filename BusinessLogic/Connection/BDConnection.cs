@@ -28,8 +28,8 @@ namespace BusinessLogic.Connection
 				string machineName = Environment.MachineName;				
 				switch (machineName)
 				{
-					case "WILBER":
-						return SqlADOConexion.IniciarConexion("sa", "zaxscd", "localhost", "GAUT_IA");
+					//case "WILBER":	return SqlADOConexion.IniciarConexion("sa", "zaxscd", "localhost", "GAUT_IA_PROD");
+					case "WILBER":	return SqlADOConexion.IniciarConexion("sa", "zaxscd", "localhost", "GAUT_IA");
 				}
 			}
 			//CONEXIONES DE PRODUCCION

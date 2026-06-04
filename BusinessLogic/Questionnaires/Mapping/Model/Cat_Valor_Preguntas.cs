@@ -16,7 +16,7 @@ namespace DataBaseModel {
        public DateTime? Updated_at { get; set; }
        [ManyToOne(TableName = "Cat_Tipo_Preguntas", KeyColumn = "Id_tipo_pregunta", ForeignKeyColumn = "Id_tipo_pregunta")]
        public Cat_Tipo_Preguntas? Cat_Tipo_Preguntas { get; set; }
-       [OneToMany(TableName = "Resultados_Pregunta_Tests", KeyColumn = "Id_valor_pregunta", ForeignKeyColumn = "Id_valor_pregunta")]
-       public List<Resultados_Pregunta_Tests>? Resultados_Pregunta_Tests { get; set; }
+       //[OneToMany(TableName = "Resultados_Pregunta_Tests", KeyColumn = "Id_valor_pregunta", ForeignKeyColumn = "Id_valor_pregunta")]
+       //public List<Resultados_Pregunta_Tests>? Resultados_Pregunta_Tests { get; set; }
    }
 }

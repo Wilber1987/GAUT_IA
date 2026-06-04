@@ -1,3 +1,4 @@
+using API.Controllers;
 using APPCORE;
 using APPCORE.Security;
 using APPCORE.Services;
@@ -62,7 +63,7 @@ namespace DataBaseModel
 			Image = FileService.setImage(Image, SystemConfigImpl.GetMediaAttachPath());
 			return Save();
 		}
-		public ResponseService SaveResultado(bool verifyTestSent = false)
+		public ResponseService SaveResultado(bool verifyTestSent = false, string? sessionKey = null)
 		{
 			try
 			{
@@ -78,7 +79,7 @@ namespace DataBaseModel
 				bool isErrorTestResult = false;
 				Resultados_Tests?.ForEach(resultado =>
 				{
-					if (verifyTestSent)
+					if (verifyTestSent && sessionKey == null)
 					{
 						var sentTest = new TestSent().Find<TestSent>(
 							FilterData.Equal("Token", resultado.IdToken)
@@ -97,6 +98,11 @@ namespace DataBaseModel
 						{
 							isErrorTestResult = true;
 						}
+					} else if(sessionKey != null)
+					{
+						UserModel user = AuthNetCore.User(sessionKey);
+						var profile = CAPA_NEGOCIO.MAPEO.Tbl_Profile.Get_Profile(user);
+						resultado.Id_Perfil = profile.Id_Perfil;
 					}
 					resultado.Save();
 				});

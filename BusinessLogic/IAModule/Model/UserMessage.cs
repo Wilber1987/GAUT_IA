@@ -9,7 +9,6 @@ namespace CAPA_NEGOCIO
 	public class UserMessage
 	{
 		public string? ServicesIdentification;
-
 		public string? Id { get; set; } // Identificador único del mensaje
 		public string? Text { get; set; } // Contenido del mensaje del usuario
 		public string? MessageIA { get; set; }
@@ -27,6 +26,7 @@ namespace CAPA_NEGOCIO
 		public bool IsWithIaResponse { get; set; }
 		public ModelFiles? Attach { get; set; }
 		public int? Id_comment { get; set; }
+		public string? Token { get;  set; }
 	}
 
 	public class IAInteractions

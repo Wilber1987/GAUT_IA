@@ -7,6 +7,7 @@ import { TemplateData, TemplateData_ModelComponent, WTemplateBuilder } from "../
 import { PageType } from "../WDevCore/WComponents/WDocumentViewer.js";
 import { WChatComponent } from "../WDevCore/WComponents/WChatComponent.js";
 import { WSecurity } from "../WDevCore/Security/WSecurity.js";
+import { ResolveTestViewComponent } from "../Questionnaires/Views/Component/ResolveTestViewComponent.js";
 
 /**
  * @typedef {Object} ComponentConfig
@@ -30,8 +31,10 @@ class TemplateView extends HTMLElement {
             StylesControlsV3.cloneNode(true),
             this.OptionContainer,
             this.TabContainer
-        );         
+        );
         this.Draw();
+        /**@type {HTMLElement?} */
+        this.SelectedSection = null;
     }
     Draw = async () => {
         this.SetOption();
@@ -39,10 +42,18 @@ class TemplateView extends HTMLElement {
 
     async SetOption() {
         this.OptionContainer.append(WRender.Create({
-            tagName: 'button', className: 'Btn-Mini-Success', innerText: 'Plantillas',
+            tagName: 'button', className: 'Btn-Mini-Success', innerText: 'Documentos',
             onclick: async () => this.Manager.NavigateFunction("id", await this.MainComponent())
         }))
+        this.OptionContainer.append(WRender.Create({
+            tagName: 'button', className: 'Btn-Mini-Success', innerText: 'Crear nuevo documento',
+            onclick: async () => this.CreateDocumentComponent()
+        }))
         this.Manager.NavigateFunction("id", await this.MainComponent());
+    }
+    CreateDocumentComponent() {
+        this.Manager.Remove("idTest")
+        this.Manager.NavigateFunction("idTest", new ResolveTestViewComponent({}));
     }
     async MainComponent() {
         return new WTableComponent({
@@ -64,27 +75,47 @@ class TemplateView extends HTMLElement {
         localStorage.setItem("identity", WSecurity.UserData.nickname)
         const IAChat = new WChatComponent({
             Url: "../api/WebhookSsmpIA",
-            UrlGetConfigData: "../api/ApiEntityHelpdesk/getTbl_CommentsWeb",
-            UrlSearch: "../api/ApiEntityHelpdesk/getTbl_CommentsWeb",
+            UrlGetConfigData: "../api/ApiEntityHelpdesk/getTbl_Comments",
+            UrlSearch: "../api/ApiEntityHelpdesk/getTbl_Comments",
             UrlAdd: "../api/ApiEntityHelpdesk/saveTbl_CommentsWeb",
             UserIdProp: "Id_User",
-            CommentsIdentify: undefined,
-            CommentsIdentifyName: "Id_Case",
-            AddObject: false
+            CommentsIdentify: TableElement.Token,
+            CommentsIdentifyName: "Token",
+            AddObject: false,
+            WithAgent: true,
+            ResponseActions: this.ResponseActions(),
+            UseLocalMemory: false,
+            IdentityValue: WSecurity.UserData.mail
         })
         return html`<div class="template-element-editor">            
-            ${new WTemplateBuilder({ Data: TableElement, PageType: PageType.OFICIO, SectionActions: [
-                { 
+            ${new WTemplateBuilder({
+            Data: TableElement, PageType: PageType.OFICIO, SectionActions: [
+                {
                     name: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.04346 16.4525C3.22094 16.8088 3.28001 17.2161 3.17712 17.6006L2.58151 19.8267C2.32295 20.793 3.20701 21.677 4.17335 21.4185L6.39939 20.8229C6.78393 20.72 7.19121 20.7791 7.54753 20.9565C8.88837 21.6244 10.4003 22 12 22Z" stroke="#1C274C" stroke-width="1.5"></path> <path opacity="0.5" d="M8 12H8.009M11.991 12H12M15.991 12H16" stroke="#1C274C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>`,
                     title: "Agregar al chat",
-                    action: (/** @type {Object<String, any>} */ editingObject, /** @type {HTMLElement|String} */ wrapper)=> {
+                    action: (/** @type {Object<String, any>} */ editingObject, /** @type {HTMLElement|String} */ wrapper) => {
                         IAChat.AddContext(editingObject);
                         IAChat.AddDataChat(wrapper);
                     }
                 }
-            ] })}
+            ]
+        })}
             ${IAChat}
         </div>`;
+    }
+    ResponseActions() {
+        return [
+            {
+                name: "add_section", label: "agregar a la sección",
+                icon: `<svg width="64px" height="64px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H12M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20M13.5 20H7C5.34315 20 4 18.6569 4 17V12" stroke="#0f279f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M7 4V7M7 10V7M7 7H4M7 7H10" stroke="#0f279f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>`,
+                action: (/** @type {string | Node} */ response) => {
+                    if (this.SelectedSection) {
+                        this.SelectedSection.append(response)
+                    }
+                }
+
+            }
+        ]
     }
     GetDiccionary() {
         return html`<ul></ul>`;
@@ -117,13 +148,13 @@ class TemplateView extends HTMLElement {
         .template-element-editor{
             display: grid;
             height: 100%;
-            grid-template-columns: calc(100% - 470px) 450px ;
-            gap: 20px;
+            grid-template-columns: calc(100% - 670px) 660px ;
+            gap: 10px;
             overflow: hidden;
             min-width: 0; 
             min-height: 0;
             w-template-builder, .diccionary {
-                padding: 0px 20px;
+                padding: 0px 0px;
                 border-radius: 10px;
                 height: 100%;
                 min-height: 0;

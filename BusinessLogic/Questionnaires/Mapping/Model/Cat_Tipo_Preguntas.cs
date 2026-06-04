@@ -10,7 +10,7 @@ namespace DataBaseModel
     {
         [PrimaryKey(Identity = true)]
         public int? Id_tipo_pregunta { get; set; }
-        public string? Tipo_pregunta { get; set; }
+        public Tipo_preguntaEnum? Tipo_pregunta { get; set; }
         public string? Descripcion { get; set; }
         public string? Estado { get; set; }
         public DateTime? Fecha_crea { get; set; }
@@ -20,8 +20,8 @@ namespace DataBaseModel
         public string? Descripcion_general { get; set; }
         [OneToMany(TableName = "Cat_Valor_Preguntas", KeyColumn = "Id_tipo_pregunta", ForeignKeyColumn = "Id_tipo_pregunta")]
         public List<Cat_Valor_Preguntas>? Cat_Valor_Preguntas { get; set; }
-        [OneToMany(TableName = "Pregunta_Tests", KeyColumn = "Id_tipo_pregunta", ForeignKeyColumn = "Id_tipo_pregunta")]
-        public List<Pregunta_Tests>? Pregunta_Tests { get; set; }
+        //[OneToMany(TableName = "Pregunta_Tests", KeyColumn = "Id_tipo_pregunta", ForeignKeyColumn = "Id_tipo_pregunta")]
+        //public List<Pregunta_Tests>? Pregunta_Tests { get; set; }
     }
 
     public enum Tipo_preguntaEnum

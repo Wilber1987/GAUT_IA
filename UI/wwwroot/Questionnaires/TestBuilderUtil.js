@@ -5,7 +5,8 @@ import { WForm } from "../WDevCore/WComponents/WForm.js";
 // @ts-ignore
 import { ModelProperty } from "../WDevCore/WModules/CommonModel.js";
 import { WArrayF } from "../WDevCore/WModules/WArrayF.js";
-import { generateGUID } from "../WDevCore/WModules/WComponentsTools.js";
+import { generateGUID, html } from "../WDevCore/WModules/WComponentsTools.js";
+import { css } from "../WDevCore/WModules/WStyledRender.js";
 import { Cat_Valor_Preguntas } from "./FrontModel/Cat_Valor_Preguntas.js";
 import { Pregunta_Tests } from "./FrontModel/Pregunta_Tests.js";
 import { Resultados_Pregunta_Tests } from "./FrontModel/Resultados_Pregunta_Tests.js";
@@ -20,14 +21,22 @@ export class TestBuilderUtil {
      * @param {string?} [token]
      */
     static BuildTest(test, container, token) {
-        token =  token ?? generateGUID()
+        let form = TestBuilderUtil.BuildForm(token, test);
+        container.append(form);
+    }
+    /**
+     * @param {string | null | undefined} token
+     * @param {Tests} test
+     */
+    static BuildForm(token, test) {
+        token = token ?? generateGUID();
         /**@type {Object.<string, ModelProperty>} */
         const model = {};
         const sections = [...new Set(test.Pregunta_Tests.map(p => p.Seccion))]
             .map(section => ({ Name: section, /**@type {Array<String>} */ Propertys: [] }));
 
         test.Pregunta_Tests.forEach(p => {
-            const type = this.BuidType(p)
+            const type = this.BuidType(p);
 
             const section = sections.find(s => s.Name === p.Seccion);
             // @ts-ignore
@@ -40,19 +49,64 @@ export class TestBuilderUtil {
                 placeholder: p.Descripcion_pregunta,
                 Dataset: "WRADIO" == type ? p.Cat_Tipo_Preguntas.Cat_Valor_Preguntas : undefined,
                 label: p.Descripcion_pregunta,
-
             };
             model[p.Id_pregunta_test] = modelPropierty;
         });
-        container.append(new WForm({
+        const form = new WForm({
             ModelObject: model,
             Groups: sections,
             SaveFunction: async (/**@type {Object.<string, any>} */ editinObject) => {
                 /**@type {Array<Resultados_Pregunta_Tests>} */
                 await this.SaveTest(editinObject, test, token, model);
-            }   
-        }));
+            }
+        });
+        const style = css`
+            .form-container {
+                position: relative;
+                width: 100%;
+                max-height: 700px;
+                overflow: auto;                
+                box-sizing: border-box;
+                h1 {
+                    position: absolute;
+                    top: 150px;
+                    margin: auto;
+                    color: #fff;
+                    font-size: 3rem;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(-50%);
+                    text-align: center;
+                    max-width: 80%;
+                    text-shadow: 0 0 10px #000;
+                }
+                img {
+                    position: sticky;
+                    top: 0;
+                    width: 100%;
+                    height: 300px;
+                    object-fit: cover;
+                    border-radius: 20px;
+                    z-index: 0;
+                     pointer-events: none;
+                } w-form {
+                    max-width: 900px;
+                    margin: 20px auto;
+                    background-color: #fff;
+                    border-radius: 10px;
+                    box-shadow: 0 0 5px 0 #999;
+                    position: relative;  
+                    padding:30px; 
+                }
+            }
+        `
+        return html`<div class="form-container">
+            <img src="${test.Image ?? "/Media/Image/covertTestTemplate.png"}">
+            <h1>${test.Titulo}</h1>
+            ${form}
+            ${style}
+        </div>`;
     }
+
     /**
      * @param {Pregunta_Tests} p
      */
@@ -85,7 +139,7 @@ export class TestBuilderUtil {
 
             const isCatValorPregunta = model[prop].type == "WRADIO";
 
-            const valorPregunta =  isCatValorPregunta ? pregunta.Valor : pregunta
+            const valorPregunta = isCatValorPregunta ? pregunta.Valor : pregunta
 
             resultados.push(new Resultados_Pregunta_Tests({
                 Id_Perfil: 1,

@@ -15,8 +15,8 @@ namespace DataBaseModel {
        public string? Estado { get; set; }
        public DateTime? Created_at { get; set; }
        public DateTime? Updated_at { get; set; }
-       [OneToMany(TableName = "Tests", KeyColumn = "Id_categoria", ForeignKeyColumn = "Id_categoria")]
-       public List<Tests>? Tests { get; set; }
+       //[OneToMany(TableName = "Tests", KeyColumn = "Id_categoria", ForeignKeyColumn = "Id_categoria")]
+       //public List<Tests>? Tests { get; set; }
        
         public object? SaveCategoria()
         {

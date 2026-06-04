@@ -83,7 +83,6 @@ h6 {
 	padding-right: 50px;
 	align-items: center;
 	background-color: var(--primary-color);
-	border-bottom: #0263be 10px solid;
 	display: flex;
 	flex-direction: row;
 	width: 100%;
@@ -94,7 +93,7 @@ h6 {
 	right: 0px;
 	box-shadow: none;
 	z-index: 1201;
-	box-shadow: rgba(80, 80, 80, 0.2) 0px 1px 8px 0px, rgba(80, 80, 80, 0.14) 0px 3px 4px 0px, rgba(80, 80, 80, 0.12) 0px 3px 3px -2px;
+	box-shadow: rgba(80, 80, 80, 0.2) 0px 0px 5px 0px;
 	transition: width 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms, margin 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms,
 		background 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms;
 
@@ -177,7 +176,7 @@ h6 {
 #MainContainer {
 	color: var(--font-primary-color);
 	background-color: var(--secundary-color);
-	padding: 10px;
+	padding: 10px 30px;
 	overflow-y: auto;
 	overflow-y: overlay;
 	overflow-x: hidden;
@@ -226,7 +225,6 @@ h6 {
 	color: transparent;
 	text-indent: 10000px;
 	border-radius: 15px;
-	overflow: hidden;
 	object-fit: cover;
 }
 
@@ -266,17 +264,6 @@ h6 {
 	object-fit: cover;
 }
 
-@container (max-width: 200px) {
-	.p-participantes {
-		display: none;
-	}
-
-	.card-options {
-		flex-direction: column;
-		height: auto;
-		justify-content: flex-start;
-	}
-}
 
 /*CASE MANAGERRRRRRRRRRRRRRRRRR*/
 
@@ -302,7 +289,9 @@ w-case-detail {
 	height: -webkit-fill-available;
 }
 
-@media(max-width: 1500px) {
+
+
+@media(max-width: 1950px) {
 	.Aside:not(.navActive) {
 		transition: all 0.5s;
 		z-index: 10000;
@@ -393,6 +382,18 @@ w-case-detail {
 		bottom: 0;
 	}
 }
+@container (max-width: 200px) {
+	.p-participantes {
+		display: none;
+	}
+
+	.card-options {
+		flex-direction: column;
+		height: auto;
+		justify-content: flex-start;
+	}
+}
+
 
 @media (prefers-color-scheme: dark) {
 	/* .logo-container img {

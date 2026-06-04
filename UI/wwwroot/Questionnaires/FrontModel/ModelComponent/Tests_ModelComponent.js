@@ -15,7 +15,7 @@ class Tests_ModelComponent extends EntityClass {
    ///**@type {ModelProperty}*/ Grado = { type: 'number' };
    ///**@type {ModelProperty}*/ Tipo_test = { type: 'text' };
    /**@type {ModelProperty}*/ Estado = { type: 'SELECT', Dataset: ["ACTIVO", "INACTIVO"] };
-   /**@type {ModelProperty}*/ Descripcion = { type: 'TEXTAREA' };
+   /**@type {ModelProperty}*/ Descripcion = { type: 'ritchtext' };
    /**@type {ModelProperty}*/ Fecha_publicacion = { type: 'date' };
    ///**@type {ModelProperty}*/ Created_at = { type: 'date' };
    ///**@type {ModelProperty}*/ Updated_at = { type: 'date' };

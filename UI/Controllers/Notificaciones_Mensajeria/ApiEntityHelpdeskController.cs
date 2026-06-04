@@ -12,12 +12,12 @@ namespace API.Controllers
 	[ApiController]
 	public class ApiEntityHelpdeskController : ControllerBase
 	{
-		private readonly IHubContext<ChatHub> _hubContext;
+		/*private readonly IHubContext<ChatHub> _hubContext;
 
         public ApiEntityHelpdeskController(IHubContext<ChatHub> hubContext)
         {
             _hubContext = hubContext;
-        }
+        }*/
 
 		[HttpPost]
 		[AuthController]

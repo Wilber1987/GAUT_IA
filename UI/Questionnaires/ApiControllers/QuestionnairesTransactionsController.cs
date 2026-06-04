@@ -11,7 +11,7 @@ namespace API.Controllers
         [HttpPost]
         public object? SaveResultado(Tests inst)
         {
-            return inst?.SaveResultado(true);
+            return inst?.SaveResultado(true, HttpContext.Session.GetString("sessionKey"));
         }
 
         [HttpPost]

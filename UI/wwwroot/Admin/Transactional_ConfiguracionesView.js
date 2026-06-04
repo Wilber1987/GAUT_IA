@@ -144,7 +144,7 @@ class Transactional_Configuraciones_ModelComponent extends EntityClass {
         super(props, 'EntityADMINISTRATIVE_ACCESS');
         Object.assign(this, props);
     }
-    /**@type {ModelProperty} */ property = { type: "TEXT"};    
+    //**@type {ModelProperty} */ property = { type: "TEXT"};    
     /**@type {ModelProperty} */ Id_Configuracion = { type: 'number', primary: true };
     /**@type {ModelProperty} */ Nombre = { type: 'text', disabled: true };
     /**@type {ModelProperty} */ Descripcion = { type: 'text', disabled: true };

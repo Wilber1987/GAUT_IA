@@ -25,6 +25,7 @@ namespace BusinessLogic.FormsIA
             {
                 try
                 {
+                    //TODO TOKEN DEBE SER PROCESADO
                     List<Resultados_Tests> resultados_Tests = new Resultados_Tests().Where<Resultados_Tests>(
                         FilterData.Equal("IdToken", testSent.Token)
                     );
@@ -38,6 +39,7 @@ namespace BusinessLogic.FormsIA
                     BeginGlobalTransaction();
                     var responseTemplate = new TemplateData
                     {
+                        Token = testSent.Token, 
                         Descripcion = TemplatesDataType.PROCESO_DE_SOLICITUD,
                         Sections = sections,
                     }.Save();
