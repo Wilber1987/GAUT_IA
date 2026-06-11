@@ -46,10 +46,10 @@ namespace BusinessLogic.IA
             float[] queryVector = await _provider.GetEmbeddingAsync(request.Text);
 
             // B. Recuperar conocimiento del mismo ServiceTag
-            /*var localKnowledge = new Tbl_Knowledge_Base().Where<Tbl_Knowledge_Base>(
-                FilterData.Equal("ServiceTag", request.ServicesIdentification)
-            );*/
-            var localKnowledge = new List<Tbl_Knowledge_Base>();
+            var localKnowledge = new Tbl_Knowledge_Base().Get<Tbl_Knowledge_Base>(
+                //FilterData.Equal("ServiceTag", request.ServicesIdentification)
+            );
+            //var localKnowledge = new List<Tbl_Knowledge_Base>();
             // C. Ranking de Similitud (RAG)
             var contextMatches = localKnowledge
                 .Select(k => new
@@ -59,9 +59,9 @@ namespace BusinessLogic.IA
                                 queryVector,
                                 VectorHelper.ByteArrayToFloatArray(k.Vector_Data))
                 })
-                .Where(x => x.Score > 0.75)
+                //.Where(x => x.Score > 0.75)
                 .OrderByDescending(x => x.Score)
-                .Take(3)
+                .Take(100000)
                 .ToList();
 
             /*if (contextMatches.Count == 0)
@@ -74,7 +74,7 @@ namespace BusinessLogic.IA
 
             // D. Construir prompt con contexto RAG
             string promptContexto = string.Join("\n", contextMatches.Select(x => x.Content_Text));
-            promptContexto = "Asistente de ventas de articulos tecnologicos";
+            //promptContexto = "Asistente de ventas de articulos tecnologicos";
             string promptFinal = $@"Eres un asistente de ayuda. Usa este contexto para responder: {promptContexto} Pregunta del usuario: {request.Text}";
 
             // E. Generar respuesta fluida con el proveedor activo

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using APPCORE;
 using BusinessLogic.ApiChat.AutomaticIAOllama.Model;
 using BusinessLogic.IA;
+using BusinessLogic.IAModule.Model;
 using CAPA_NEGOCIO.MAPEO;
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.Extensions.Hosting;
@@ -15,53 +16,27 @@ namespace BusinessLogic.ApiChat.AutomaticIA.TrainingModule
     {
 
 
-        public async Task ProcessPendingComments()
+        public static async Task ProcessTraining(List<PreRagElement> preRagElements)
         {
-            // 1. Obtener comentarios nuevos de agentes o IA que tengan contenido útil
-            // Filtramos mensajes muy cortos (como "ok" o "hola") que no sirven para RAG
-
-
-           /* var respuestasAgente = new Tbl_Comments().Where<Tbl_Comments>(
-                            FilterData.Limit(400),
-                            FilterData.ISNull("IsVectorized"),
-                            FilterData.NotNull("Id_User")
-            );
-            */
-            /*foreach (var respuesta in respuestasAgente)
+            IAService iaService = new IAService();
+            foreach (var item in preRagElements)
             {
-                // 2. Buscamos el mensaje del usuario que detonó esta respuesta
-                // Es el mensaje anterior más cercano en el mismo caso
-                Tbl_Case? Tbl_CaseWithComments = new Tbl_Case() { Id_Case = respuesta.Id_Case }.Find<Tbl_Case>();
+                string? searchText =  string.IsNullOrWhiteSpace(item.Query) ? item.BodyResponse : $"{item.Query} {item.BodyResponse}";
 
-
-
-                var preguntaUsuario = new Tbl_Comments().Find<Tbl_Comments>(
-                    FilterData.Distinc("Id_User", respuesta.Id_User),
-                    FilterData.Equal("Id_Case", respuesta.Id_Case),
-                    FilterData.Less("Fecha", respuesta.Fecha)
-                );
-
-                if (!string.IsNullOrEmpty(preguntaUsuario?.Body))
+                string contentText = $@"Pregunta: {item.Query} \n Respuesta: {item.BodyResponse}";
+                float[] vector = await iaService.GetEmbedding(searchText);
+                byte[] vectorBytes =  VectorHelper.FloatArrayToByteArray(vector);
+                var knowledge = new Tbl_Knowledge_Base
                 {
-                    // 3. CREAMOS EL PAR (Este es el secreto de la fluidez)
-                    string contenidoParaVector = $"Pregunta Usuario: {preguntaUsuario} | Respuesta Agente: {respuesta.Body}";
-
-                    // 4. Generamos el vector de este bloque completo
-                    float[] vector = await new OllamaService().GetEmbedding(contenidoParaVector);
-                    byte[] vectorBytes = VectorHelper.FloatArrayToByteArray(vector);
-
-                    // 5. Guardamos en la base de conocimiento
-                    var newVector = new Tbl_Knowledge_Base
-                    {
-                        ServiceTagId = Tbl_CaseWithComments?.Tbl_Servicios?.Id_Servicio,
-                        ServiceTag = Tbl_CaseWithComments?.Tbl_Servicios?.Nombre_Servicio,
-                        Content_Text = contenidoParaVector,
-                        Vector_Data = vectorBytes
-                    }.Save() as Tbl_Knowledge_Base;
-                }
-                respuesta.IsVectorized = true;
-                respuesta.Update();
-            }*/
+                    ServiceTagId = item.Id_Servicio,
+                    ServiceTag = item.Category,
+                    SearchText = searchText,
+                    Content_Text = contentText,
+                    Vector_Data = vectorBytes,
+                    CreatedAt = DateTime.UtcNow
+                }.Save() as Tbl_Knowledge_Base;
+                Console.WriteLine($"Nuevo conocimiento: ${knowledge?.Id_Knowledge} - ${knowledge?.Category}");
+            }
         }
     }
 }

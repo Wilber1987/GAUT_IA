@@ -11,7 +11,7 @@ namespace BusinessLogic.ApiChat.AutomaticIAOllama.Model
     {
         [PrimaryKey(Identity = true)]
         public int? Id_Knowledge { get; set; }
-        
+
         // Corresponde a ServicesIdentification de tu UserMessage
         public string? ServiceTag { get; set; }
 
@@ -23,8 +23,6 @@ namespace BusinessLogic.ApiChat.AutomaticIAOllama.Model
         // Almacenamiento binario del vector (Embedding)
         public byte[]? Vector_Data { get; set; }
 
-        public DateTime? Fecha_Creacion { get; set; }
-
         // Propiedad calculada (no mapeada a columna si tu mapper lo permite)
         // Útil para depuración o si necesitas ver los números en caliente
         public float[]? VectorFloats
@@ -32,5 +30,10 @@ namespace BusinessLogic.ApiChat.AutomaticIAOllama.Model
             get => VectorHelper.ByteArrayToFloatArray(Vector_Data);
             set => Vector_Data = VectorHelper.FloatArrayToByteArray(value);
         }
+        public string? Category { get; set; }
+        public string? SourceKey { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public string? SearchText { get;  set; }
     }
+
 }

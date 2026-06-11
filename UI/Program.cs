@@ -4,6 +4,7 @@ using APPCORE.Cron.Jobs;
 using BusinessLogic.Connection;
 using CAPA_NEGOCIO.SystemConfig;
 using BusinessLogic.FormsIA;
+using BusinessLogic.SinteticTRainingData;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +56,9 @@ builder.Services.AddSession(options =>
 var app = builder.Build();
 new BDConnection().InitMainConnection(app.Environment.IsDevelopment());
 SystemConfigImpl.IsDevelopment = app.Environment.IsDevelopment();
+
+
+new StudentsSimulator().Execute();
 // Configure the HTTP request pipeline.
 new FormsIAOperation().ProcessForm();
 

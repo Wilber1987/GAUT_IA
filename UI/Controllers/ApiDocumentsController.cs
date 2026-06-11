@@ -5,6 +5,7 @@ using iText.Kernel.Pdf;
 using iText.Kernel.Geom;
 using CAPA_NEGOCIO.Templates.Model;
 using APPCORE;
+using BusinessLogic.Templates.Operations;
 //using Microsoft.Playwright;
 
 namespace UI.Controllers
@@ -13,7 +14,7 @@ namespace UI.Controllers
 	[Route("api/[controller]/[action]")]
 	public class ApiDocumentsDataController : ControllerBase
 	{
-		
+
 		//pdf 
 		[HttpPost]
 		public IActionResult GeneratePdf([FromBody] PdfRequest request)
@@ -91,25 +92,25 @@ namespace UI.Controllers
 
 		//Manejo de templates
 		[HttpPost]
-		[AuthController]		
+		[AuthController]
 		public List<TemplateData> GetTemplateData(TemplateData Inst)
 		{
 			return Inst.Get<TemplateData>();
 		}
-		
+
 		//Manejo de templates
 		[HttpPost]
 		[AuthController]
 		public ResponseService UpdateTemplateData(TemplateData Inst)
 		{
-			return Inst.Update();
+			return TemplateOperations.UpdateTemplate(HttpContext.Session.GetString("sessionKey"), Inst);
 		}
 		//Manejo de templates
 		[HttpPost]
 		[AuthController]
 		public object? SaveTemplateData(TemplateData Inst)
 		{
-			return Inst.Save();
+			return TemplateOperations.SaveTemplate(HttpContext.Session.GetString("sessionKey"), Inst);
 		}
 		//Manejo de templates
 		[HttpPost]

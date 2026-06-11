@@ -3,11 +3,12 @@ import { WRender, ComponentsManager, html } from "../WDevCore/WModules/WComponen
 import { StylesControlsV2, StylesControlsV3, StyleScrolls } from "../WDevCore/StyleModules/WStyleComponents.js"
 import { css } from "../WDevCore/WModules/WStyledRender.js";
 import { WTableComponent } from "../WDevCore/WComponents/WTableComponent.js";
-import { TemplateData, TemplateData_ModelComponent, WTemplateBuilder } from "../WDevCore/WComponents/WTemplateBuilder.js";
+import { WTemplateBuilder } from "../WDevCore/WComponents/WTemplateBuilder.js";
 import { PageType } from "../WDevCore/WComponents/WDocumentViewer.js";
 import { WChatComponent } from "../WDevCore/WComponents/WChatComponent.js";
 import { WSecurity } from "../WDevCore/Security/WSecurity.js";
 import { ResolveTestViewComponent } from "../Questionnaires/Views/Component/ResolveTestViewComponent.js";
+import { TemplateData, TemplateData_ModelComponent } from "../WDevCore/WComponents/Models/TemplateModel.js";
 
 /**
  * @typedef {Object} ComponentConfig
@@ -62,47 +63,13 @@ class TemplateView extends HTMLElement {
             Options: {
                 UserActions: [{
                     name: 'edit', action: (/** @type {TemplateData} */ TableElement) => {
-                        this.Manager.NavigateFunction("idtemplate" + TableElement.Id_Template, this.TemplateEditor(TableElement));
+                        this.Manager.NavigateFunction("idtemplate" + TableElement.Id_Template, TemplateEditor(TableElement, this.ResponseActions()));
                     }
                 }]
             }
         })
     }
-    /**
-     * @param {TemplateData} TableElement
-     */
-    TemplateEditor(TableElement) {
-        localStorage.setItem("identity", WSecurity.UserData.nickname)
-        const IAChat = new WChatComponent({
-            Url: "../api/WebhookSsmpIA",
-            UrlGetConfigData: "../api/ApiEntityHelpdesk/getTbl_Comments",
-            UrlSearch: "../api/ApiEntityHelpdesk/getTbl_Comments",
-            UrlAdd: "../api/ApiEntityHelpdesk/saveTbl_CommentsWeb",
-            UserIdProp: "Id_User",
-            CommentsIdentify: TableElement.Token,
-            CommentsIdentifyName: "Token",
-            AddObject: false,
-            WithAgent: true,
-            ResponseActions: this.ResponseActions(),
-            UseLocalMemory: false,
-            IdentityValue: WSecurity.UserData.mail
-        })
-        return html`<div class="template-element-editor">            
-            ${new WTemplateBuilder({
-            Data: TableElement, PageType: PageType.OFICIO, SectionActions: [
-                {
-                    name: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.04346 16.4525C3.22094 16.8088 3.28001 17.2161 3.17712 17.6006L2.58151 19.8267C2.32295 20.793 3.20701 21.677 4.17335 21.4185L6.39939 20.8229C6.78393 20.72 7.19121 20.7791 7.54753 20.9565C8.88837 21.6244 10.4003 22 12 22Z" stroke="#1C274C" stroke-width="1.5"></path> <path opacity="0.5" d="M8 12H8.009M11.991 12H12M15.991 12H16" stroke="#1C274C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>`,
-                    title: "Agregar al chat",
-                    action: (/** @type {Object<String, any>} */ editingObject, /** @type {HTMLElement|String} */ wrapper) => {
-                        IAChat.AddContext(editingObject);
-                        IAChat.AddDataChat(wrapper);
-                    }
-                }
-            ]
-        })}
-            ${IAChat}
-        </div>`;
-    }
+
     ResponseActions() {
         return [
             {
@@ -139,28 +106,66 @@ class TemplateView extends HTMLElement {
             min-height:0;
             overflow:hidden;
         }
-        w-chat-component {
-            height: calc(100% - 20px) !important;
-            box-sizing: border-box;
-            display: block;
-        }
-        
-        .template-element-editor{
-            display: grid;
-            height: 100%;
-            grid-template-columns: calc(100% - 670px) 660px ;
-            gap: 10px;
-            overflow: hidden;
-            min-width: 0; 
-            min-height: 0;
-            w-template-builder, .diccionary {
-                padding: 0px 0px;
-                border-radius: 10px;
-                height: 100%;
-                min-height: 0;
-            }
-        }           
+            
     `
 }
 customElements.define('w-template-view-manager', TemplateView);
 export { TemplateView }
+
+/**
+ * @param {TemplateData} TableElement
+ */
+export const TemplateEditor = (TableElement, /** @type {{ name: string; label: string; icon: string; action: (response: string | Node) => void; }[]} */ responseActions) => {
+    localStorage.setItem("identity", WSecurity.UserData.nickname)
+    const IAChat = new WChatComponent({
+        Url: "../api/WebhookSsmpIA",
+        UrlGetConfigData: "../api/ApiEntityHelpdesk/getTbl_Comments",
+        UrlSearch: "../api/ApiEntityHelpdesk/getTbl_Comments",
+        UrlAdd: "../api/ApiEntityHelpdesk/saveTbl_CommentsWeb",
+        UserIdProp: "Id_User",
+        CommentsIdentify: TableElement.Token,
+        CommentsIdentifyName: "Token",
+        AddObject: false,
+        WithAgent: true,
+        ResponseActions: responseActions,
+        UseLocalMemory: false,
+        IdentityValue: WSecurity.UserData.mail
+    })
+    return html`<div class="template-element-editor">
+        <style>
+            w-chat-component {
+                height: calc(100% - 20px) !important;
+                box-sizing: border-box;
+                display: block;
+            }  
+            .template-element-editor{
+                display: grid;
+                height: 100%;
+                grid-template-columns: calc(100% - 670px) 660px ;
+                gap: 10px;
+                overflow: hidden;
+                min-width: 0; 
+                min-height: 0;
+                w-template-builder, .diccionary {
+                    padding: 0px 0px;
+                    border-radius: 10px;
+                    height: 100%;
+                    min-height: 0;
+                }
+            }  
+        </style>
+            ${new WTemplateBuilder({
+                Data: TableElement, PageType: PageType.OFICIO, SectionActions: [
+                {
+                    name: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.5997 2.37562 15.1116 3.04346 16.4525C3.22094 16.8088 3.28001 17.2161 3.17712 17.6006L2.58151 19.8267C2.32295 20.793 3.20701 21.677 4.17335 21.4185L6.39939 20.8229C6.78393 20.72 7.19121 20.7791 7.54753 20.9565C8.88837 21.6244 10.4003 22 12 22Z" stroke="#1C274C" stroke-width="1.5"></path> <path opacity="0.5" d="M8 12H8.009M11.991 12H12M15.991 12H16" stroke="#1C274C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>`,
+                    title: "Agregar al chat",
+                    action: (/** @type {Object<String, any>} */ editingObject, /** @type {HTMLElement|String} */ wrapper) => {
+                        IAChat.AddContext(editingObject);
+                        IAChat.AddDataChat(wrapper);
+                    }
+                }
+                ]
+            })}
+            ${IAChat}
+        </div>`;
+}
