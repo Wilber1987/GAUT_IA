@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMIÈRE | Alta Costura</title>
+    <!-- Fuentes de Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- VARIABLES & RESET --- */
+        :root {
+            --bg-dark: #0a0a0a;
+            --text-main: #f5f5f7;
+            --accent-pink: #ff6b81;
+            --accent-gold: #d4af37;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 { font-family: 'Cinzel', serif; letter-spacing: 2px; text-transform: uppercase; }
+
+        /* --- UTILIDADES --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .text-gradient { background: linear-gradient(45deg, var(--accent-pink), var(--accent-gold)); -webkit-background-clip: text; color: transparent; }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed; top: 0; width: 100%; padding: 20px; z-index: 100;
+            background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(5px);
+        }
+
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 4px; }
+        
+        /* Menú simple */
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { text-decoration: none; color: #fff; position: relative; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--accent-pink); transform-origin: bottom; transition: 0.3s; }
+        .nav-links a:hover::after { transform: rotate(45deg); }
+
+        /* --- HERO SECTION (Glassmorphism) --- */
+        .hero {
+            height: 100vh;
+            display: flex; align-items: center; justify-content: space-between;
+            position: relative;
+            background-image: url('https://images.unsplash.com/photo-1537386942197-cad7dd5e47a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+        }
+
+        /* Overlay oscuro para leer mejor */
+        .hero::before {
+            content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)); 
+        }
+
+        .hero-content { text-align: center; z-index: 2; position: relative; padding-top: 40px;}
+        
+        h1 { font-size: 4rem; margin-bottom: 20px; line-height: 1.1; }
+        p.hero-subtitle { font-size: 1.2rem; opacity: 0.9; margin-top: -30px; max-width: 600px; margin-left: auto; margin-right: auto; opacity: 0;}
+
+        .cta-button {
+            padding: 15px 40px;
+            background: transparent; border: 2px solid var(--accent-pink); color: #fff; font-size: 1rem; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all 0.5s ease;
+        }
+        
+        .cta-button:hover { background: var(--accent-pink); box-shadow: 0 0 20px var(--accent-pink); transform: scale(1.05); }
+
+        /* --- PRODUCTOS (Masonry Grid) --- */
+        .products-section { padding: 80px 0; position: relative; overflow: hidden;}
+
+        .grid-container {
+            columns: 4 280px; gap: 30px; padding-bottom: 50px;
+            opacity: 0; animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .product-card {
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.4s ease; position: relative; overflow: hidden;
+        }
+
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-color: var(--accent-pink); }
+
+        .card-image-wrapper { position: relative; overflow: hidden; height: 400px; cursor: pointer;}
+        
+        .card-image-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .product-card:hover img { transform: scale(1.1); }
+
+        .badge-new { position: absolute; top: 20px; right: 20px; background: var(--accent-pink); color: white; padding: 5px 15px; font-size: 0.8rem; border-radius: 4px; z-index: 10;}
+        
+        .card-info { padding: 25px; text-align: center; }
+        .price { display: block; font-weight: bold; color: var(--accent-gold); margin-top: 10px; }
+
+        /* --- BENEFICIOS (Glass Cards) --- */
+        .features { background: #0f0f0f; padding: 60px 0; text-align: center; }
+        
+        .feature-item { max-width: 80%; margin-top: 30px; opacity: 0.7;}
+
+        /* --- FOOTER --- */
+        footer { border-top: 1px solid #222; padding: 50px 0; text-align: center; font-size: 0.9rem; color: #666; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Lumière.</div>
+                <ul class="nav-links">
+                    <li><a href="#">Colección</a></li>
+                    <li><a href="#">Hombres</a></li>
+                    <li><a href="#">Mujeres</a></li>
+                    <li><a href="#">Noticias</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Tu Estilo,<br><span class="text-gradient">Definiendo</span> Historia.</h1>
+                <p class="hero-subtitle">Descubre la nueva colección diseñada para quienes no conforman la norma. Elegancia atemporal con un toque de rebeldía.</p>
+                <br>
+                <button class="cta-button">Ver Nueva Colección</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section class="products-section container">
+        <h2 class="text-gradient" style="margin-bottom: 40px;">Cartera Exclusiva</h2>
+        
+        <div class="grid-container">
+            <!-- Producto 1 -->
+            <div class="product-card">
+                <span class="badge-new">NEU</span>
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1539085625470-e5a4b8c8d4e6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Abrigo Negro">
+                </div>
+                <div class="card-info">
+                    <h3>Abrigo de Cuero Negro</h3>
+                    <p>Diseño atemporal con corteoversized.</p>
+                    <span class="price">$180.00</span>
+                </div>
+            </div>
+
+            <!-- Producto 2 -->
+            <div class="product-card">
+                <span class="badge-new">HOT</span>
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1567323910448-7e737eb93c1f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Vestido Rosa">
+                </div>
+                <div class="card-info">
+                    <h3>Vestido de Noche</h3>
+                    <p>Acabado brillante, seductor y elegante.</p>
+                    <span class="price">$125.00</span>
+                </div>
+            </div>
+
+            <!-- Producto 3 -->
+            <div class="product-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1496791615239-a8099b6d4c9e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Camisa Blanca">
+                </div>
+                <div class="card-info">
+                    <h3>Camisa Cravata</h3>
+                    <p>Cuerpo sólido, color blanco puro.</p>
+                    <span class="price">$65.00</span>
+                </div>
+            </div>
+
+             <!-- Producto 4 -->
+             <div class="product-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1595763819960-26d6b5c02ef6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Blusa Verde">
+                </div>
+                <div class="card-info">
+                    <h3>Blusa Verano</h3>
+                    <p>Tela algodón orgánico, color menta.</p>
+                    <span class="price">$45.00</span>
+                </div>
+            </div>
+
+             <!-- Producto 5 -->
+             <div class="product-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1627389394004-5e715c2f9d1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Gorra Negra">
+                </div>
+                <div class="card-info">
+                    <h3>Gorra Urbanista</h3>
+                    <p>Ruedas de aluminio, acabado mate.</p>
+                    <span class="price">$25.00</span>
+                </div>
+            </div>
+
+             <!-- Producto 6 -->
+             <div class="product-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1549488872-e9d03eb13f60?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Chaqueta">
+                </div>
+                <div class="card-info">
+                    <h3>Chaqueta Trench</h3>
+                    <p>Tela de mezclilla resistente.</p>
+                    <span class="price">$150.00</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN DE VALORES -->
+    <section class="features">
+        <h2>El Porqué de Lumière</h2>
+        <div style="display: flex; justify-content: space-around; margin-top: 40px;">
+            <div class="feature-item">
+                <span>&#128517;</span> Diseñado por expertos.
+            </div>
+            <div class="feature-item">
+                <span>&#9663;</span> Envíos seguros.
+            </div>
+            <div class="feature-item">
+                <span>&#128046;</span> Devoluciones 30 días.
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Lumière Fashion © 2024. Todos los derechos reservados.</p>
+        <p style="margin-top:10px; font-size: 0.8rem;">Instagram | TikTok | Pinterest</p>
+    </footer>
+
+    <!-- Script suave para desplazamiento -->
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Navbar background change on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.style.background = '#0a0a0a';
+                header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+            } else {
+                header.style.background = 'rgba(10, 10, 10, 0.8)';
+                header.style.boxShadow = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

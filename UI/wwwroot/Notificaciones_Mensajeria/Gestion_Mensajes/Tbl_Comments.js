@@ -1,26 +1,26 @@
-import {EntityClass} from "../../WDevCore/WModules/EntityClass.js";
+import { EntityClass } from "../../WDevCore/WModules/EntityClass.js";
 
 class Tbl_Comments_ModelComponent extends EntityClass {
     constructor(props) {
-        super(props, 'Organization');
+        super(props, 'EntityHelpdesk');
         Object.assign(this, props);
         ;
         this.Id_Tarea = undefined;
     }
 
-    Id_Comentario = {type: "number", primary: true};
-    Estado = {type: "text", hidden: true};
-    NickName = {type: "text", hidden: true};
-    Body = {type: "textarea", label: "Mensaje"};
-    Id_Case = {type: "text", hidden: true};
+    Id_Comentario = { type: "number", primary: true };
+    Estado = { type: "text", hidden: true };
+    NickName = { type: "text", hidden: true };
+    Body = { type: "textarea", label: "Mensaje" };
+    Id_Case = { type: "text", hidden: true };
 }
 
-export {Tbl_Comments_ModelComponent};
+export { Tbl_Comments_ModelComponent };
 
 class Tbl_Comments extends EntityClass {
     /** @param {Partial<Tbl_Comments>} [props] */
     constructor(props) {
-        super(props, 'Organization');
+        super(props, 'EntityHelpdesk');
         Object.assign(this, props);
     }
     /**@type {Number}*/ Id_Comentario;
@@ -30,9 +30,9 @@ class Tbl_Comments extends EntityClass {
     /**@type {Number}*/ Id_User;
     /**@type {String}*/ NickName;
     /**@type {String}*/ Mail;
+    /**@type {String}*/ Token;
     /**@type {String}*/ Attach_Files;
     /**@type {String}*/ Mails;
     /**@type {Tbl_Case} ManyToOne*/ Tbl_Case;
- }
- export { Tbl_Comments }
- 
+}
+export { Tbl_Comments }

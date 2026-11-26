@@ -1,0 +1,59 @@
+@startuml
+
+left to right direction
+
+actor "Administrador" as Admin
+actor "Configurador" as Config
+actor "Usuario" as User
+actor "Proveedor IA\n(OpenAI/Ollama/etc)" as IA
+
+rectangle "Plataforma Inteligente Empresarial" {
+
+    usecase "Gestionar Usuarios" as UC1
+    usecase "Gestionar Roles" as UC2
+    usecase "Gestionar Permisos" as UC3
+
+    usecase "Configurar Formularios" as UC4
+    usecase "Configurar Secciones" as UC5
+    usecase "Configurar Preguntas" as UC6
+    usecase "Definir Prompt System" as UC7
+
+    usecase "Completar Formulario" as UC8
+    usecase "Enviar Información" as UC9
+
+    usecase "Consultar Asistente IA" as UC10
+
+    usecase "Recuperar Contexto RAG" as UC11
+    usecase "Construir Prompt" as UC12
+    usecase "Generar Respuesta IA" as UC13
+
+    usecase "Generar Informe" as UC14
+
+    usecase "Administrar Base de Conocimiento" as UC15
+    usecase "Vectorizar Información" as UC16
+}
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+Admin --> UC15
+
+Config --> UC4
+Config --> UC5
+Config --> UC6
+Config --> UC7
+
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC14
+
+UC15 --> UC16
+
+UC10 --> UC11 : <<include>>
+UC10 --> UC12 : <<include>>
+UC10 --> UC13 : <<include>>
+
+IA --> UC13
+
+@enduml

@@ -36,6 +36,12 @@ namespace CAPA_NEGOCIO.MAPEO
 			}
 			return null;
 		}
+		public static (UserModel?, CAPA_NEGOCIO.MAPEO.Security_Users?) GetUserData(string? Identify)
+        {
+            var user = AuthNetCore.User(Identify);
+            var dbUser = new CAPA_NEGOCIO.MAPEO.Security_Users { Id_User = user.UserId }.Find<Security_Users>();
+            return (user, dbUser);
+        }
 
 		public object SaveUserT(string identity)
 		{

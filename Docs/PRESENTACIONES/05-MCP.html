@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Módulo 4: Salida Estructurada y MCP - IA Open Source en .NET">
+    <meta name="scorm-version" content="1.2">
+    <meta name="scorm-title" content="IA Open Source en .NET - Módulo 4: Salida Estructurada y MCP">
+    <title>Módulo 4 | Salida Estructurada y MCP - IA Open Source .NET</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/index.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'Courier New', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+        }
+        
+        .scorm-progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #6366f1;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .pulse-dot {
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .terminal {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            color: #c9d1d9;
+            overflow: hidden;
+        }
+        .terminal-header {
+            background: #161b22;
+            padding: 10px 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .terminal-body {
+            padding: 16px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .code-keyword { color: #ff7b72; }
+        .code-type { color: #79c0ff; }
+        .code-string { color: #a5d6ff; }
+        .code-comment { color: #8b949e; font-style: italic; }
+        .code-method { color: #d2a8ff; }
+        .code-number { color: #ffa657; }
+        .code-variable { color: #ffa657; }
+
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- SCORM Progress Tracker -->
+    <div id="scorm-tracker" class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+                <span>SCORM 1.2 · Módulo 4</span>
+                <span class="hidden sm:inline text-slate-400">|</span>
+                <span class="hidden sm:inline" id="scorm-status-text">Estado: Inicializando...</span>
+            </div>
+            <div class="flex items-center gap-3 flex-1 max-w-md">
+                <div class="text-xs font-medium text-slate-600 whitespace-nowrap">Progreso:</div>
+                <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="scorm-progress-fill" class="scorm-progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-700 rounded-full" style="width: 0%"></div>
+                </div>
+                <span id="scorm-progress-percent" class="text-xs font-bold text-brand-600 w-10 text-right">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-10 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">M4</div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-slate-800 text-sm leading-tight">Salida Estructurada y MCP</span>
+                    <span class="text-xs text-slate-500 leading-tight">Encuentro 2 · Horas 7-8</span>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+                <a href="#json-mode" class="nav-link hover:text-brand-600">JSON Mode</a>
+                <a href="#minimal-api" class="nav-link hover:text-brand-600">Minimal API</a>
+                <a href="#mcp" class="nav-link hover:text-brand-600">MCP</a>
+                <a href="#tools" class="nav-link hover:text-brand-600">Tools en C#</a>
+            </div>
+            <button onclick="scrollToSection('evaluacion')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors">
+                Evaluación
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-gradient pt-32 pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-brand-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-up">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-medium mb-6">
+                        <span class="px-2 py-0.5 rounded bg-brand-500 text-white font-bold">MÓDULO 4</span>
+                        <span>Encuentro 2 · Horas 7-8</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                        Salida Estructurada y <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-purple-300">Model Context Protocol</span>
+                    </h1>
+                    <p class="text-lg text-slate-300 mb-8 leading-relaxed">
+                        El broche de oro: fuerza a los LLMs a responder en JSON tipado, orquesta todo en una Minimal API de .NET y conecta tu aplicación al ecosistema MCP para que la IA invoque funciones de C# de forma autónoma.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                            <div class="text-2xl font-bold text-white">4</div>
+                            <div class="text-xs text-slate-400">Temas avanzados</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                            <div class="text-2xl font-bold text-white">2h</div>
+                            <div class="text-xs text-slate-400">Duración</div>
+                        </div>
+                    </div>
+                    <button onclick="scrollToSection('json-mode')" class="px-6 py-3 bg-white text-brand-700 font-semibold rounded-lg hover:bg-slate-100 transition-colors shadow-lg">
+                        Comenzar Módulo →
+                    </button>
+                </div>
+                <div class="fade-up hidden lg:block">
+                    <img src="https://image.qwenlm.ai/public_source/a87c8742-10ec-43bf-ae16-94e4d7ce60b6/15052966f-eacc-4410-a240-df94b8d33bce.png" 
+                         alt=".NET comunicándose con IA vía MCP" 
+                         class="rounded-2xl shadow-2xl border border-white/10 w-full bg-white/5 p-4">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Topic 1: JSON Mode -->
+    <section id="json-mode" class="py-20 bg-white" data-sco-id="sco_topic1">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-up order-2 lg:order-1">
+                    <div class="sticky top-32">
+                        <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 1</span>
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">JSON Mode: Respuestas Tipadas</h2>
+                        <p class="text-slate-600 leading-relaxed mb-6">
+                            Los LLMs son inherentemente no deterministas. Para integrarlos en aplicaciones enterprise, necesitamos garantizar que la salida sea un JSON válido y estructurado que C# pueda deserializar de forma segura.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-xl bg-brand-50 border border-brand-200">
+                                <h4 class="font-semibold text-brand-900 mb-2"> Parámetro <code class="text-xs bg-white px-1 rounded">format: "json"</code></h4>
+                                <p class="text-sm text-brand-800">Ollama y otros servidores locales fuerzan al modelo a generar exclusivamente JSON válido, eliminando texto explicativo.</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-brand-50 border border-brand-200">
+                                <h4 class="font-semibold text-brand-900 mb-2">🛡️ Records Inmutables en C#</h4>
+                                <p class="text-sm text-brand-800">Usamos <code class="text-xs bg-white px-1 rounded">public record</code> con <code class="text-xs bg-white px-1 rounded">JsonPropertyName</code> para mapear la respuesta a tipos fuertes.</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-brand-50 border border-brand-200">
+                                <h4 class="font-semibold text-brand-900 mb-2"> System.Text.Json</h4>
+                                <p class="text-sm text-brand-800">Deserialización rápida y nativa. Sin dependencias de terceros como Newtonsoft.Json.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fade-up order-1 lg:order-2 space-y-6">
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot bg-red-500"></span>
+                            <span class="terminal-dot bg-yellow-500"></span>
+                            <span class="terminal-dot bg-green-500"></span>
+                            <span class="text-xs text-slate-400 ml-2">Models.cs - Definición de tipos</span>
+                        </div>
+                        <div class="terminal-body">
+<pre class="text-sm"><span class="code-keyword">public record</span> <span class="code-type">WeatherResponse</span>(
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"city"</span>)] <span class="code-type">string</span> <span class="code-variable">City</span>,
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"temperature_c"</span>)] <span class="code-type">int</span> <span class="code-variable">Temperature</span>,
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"condition"</span>)] <span class="code-type">string</span> <span class="code-variable">Condition</span>,
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"humidity"</span>)] <span class="code-type">int</span> <span class="code-variable">Humidity</span>);</pre>
+                        </div>
+                    </div>
+
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot bg-red-500"></span>
+                            <span class="terminal-dot bg-yellow-500"></span>
+                            <span class="terminal-dot bg-green-500"></span>
+                            <span class="text-xs text-slate-400 ml-2">Payload enviado a Ollama</span>
+                        </div>
+                        <div class="terminal-body">
+<pre class="text-sm"><span class="code-keyword">{</span>
+  <span class="code-string">"model"</span><span class="code-keyword">:</span> <span class="code-string">"llama3.2"</span><span class="code-keyword">,</span>
+  <span class="code-string">"messages"</span><span class="code-keyword">:</span> <span class="code-keyword">[{</span>
+    <span class="code-string">"role"</span><span class="code-keyword">:</span> <span class="code-string">"user"</span><span class="code-keyword">,</span>
+    <span class="code-string">"content"</span><span class="code-keyword">:</span> <span class="code-string">"Clima en Madrid hoy"</span>
+  <span class="code-keyword">}],</span>
+  <span class="code-string">"format"</span><span class="code-keyword">:</span> <span class="code-string">"json"</span>,  <span class="code-comment">// ¡Clave para forzar JSON!</span>
+  <span class="code-string">"stream"</span><span class="code-keyword">:</span> <span class="code-keyword">false</span>
+<span class="code-keyword">}</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 2: Minimal API -->
+    <section id="minimal-api" class="py-20 bg-slate-50" data-sco-id="sco_topic2">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 2</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800">Orquestación con Minimal API</h2>
+                <p class="text-slate-600 mt-4 max-w-2xl mx-auto">Construye un endpoint .NET que reciba una pregunta del cliente, recupere contexto vía RAG, consulte al LLM local y devuelva una respuesta estructurada en un solo flujo.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-6 mb-12">
+                <div class="fade-up feature-card p-6 rounded-2xl bg-white border border-slate-200">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-xl font-bold">1</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Recepción</h3>
+                    <p class="text-sm text-slate-600">El endpoint recibe la consulta del usuario y valida el modelo de entrada con DataAnnotations.</p>
+                </div>
+                <div class="fade-up feature-card p-6 rounded-2xl bg-white border border-slate-200">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-xl font-bold">2</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Recuperación</h3>
+                    <p class="text-sm text-slate-600">Se invoca el servicio RAG para obtener los chunks relevantes de la base de datos vectorial.</p>
+                </div>
+                <div class="fade-up feature-card p-6 rounded-2xl bg-white border border-slate-200">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4 text-xl font-bold">3</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Generación</h3>
+                    <p class="text-sm text-slate-600">Se construye el prompt con contexto y se envía al LLM local en modo JSON.</p>
+                </div>
+            </div>
+
+            <div class="fade-up">
+                <div class="terminal max-w-4xl mx-auto">
+                    <div class="terminal-header">
+                        <span class="terminal-dot bg-red-500"></span>
+                        <span class="terminal-dot bg-yellow-500"></span>
+                        <span class="terminal-dot bg-green-500"></span>
+                        <span class="text-xs text-slate-400 ml-2">Program.cs - Endpoint Minimal API</span>
+                    </div>
+                    <div class="terminal-body">
+<pre class="text-sm"><span class="code-keyword">var</span> <span class="code-variable">builder</span> = <span class="code-type">WebApplication</span>.<span class="code-method">CreateBuilder</span>(<span class="code-variable">args</span>);
+<span class="code-variable">builder</span>.<span class="code-method">Services</span>.<span class="code-method">AddSingleton</span>&lt;<span class="code-type">IRagService</span>, <span class="code-type">RagService</span>&gt;();
+<span class="code-variable">builder</span>.<span class="code-method">Services</span>.<span class="code-method">AddHttpClient</span>&lt;<span class="code-type">ILocalAiClient</span>, <span class="code-type">OllamaClient</span>&gt;();
+
+<span class="code-keyword">var</span> <span class="code-variable">app</span> = <span class="code-variable">builder</span>.<span class="code-method">Build</span>();
+
+<span class="code-comment">// Endpoint principal de consulta RAG</span>
+<span class="code-variable">app</span>.<span class="code-method">MapPost</span>(<span class="code-string">"/api/rag-query"</span>, <span class="code-keyword">async</span> (<span class="code-type">QueryRequest</span> <span class="code-variable">req</span>, <span class="code-type">IRagService</span> <span class="code-variable">rag</span>) =>
+<span class="code-keyword">{</span>
+    <span class="code-comment">// 1. Recuperar contexto relevante</span>
+    <span class="code-keyword">var</span> <span class="code-variable">context</span> = <span class="code-keyword">await</span> <span class="code-variable">rag</span>.<span class="code-method">RetrieveContextAsync</span>(<span class="code-variable">req</span>.<span class="code-variable">Question</span>);
+    
+    <span class="code-comment">// 2. Generar respuesta estructurada</span>
+    <span class="code-keyword">var</span> <span class="code-variable">answer</span> = <span class="code-keyword">await</span> <span class="code-variable">rag</span>.<span class="code-method">GenerateStructuredAnswerAsync</span>(
+        <span class="code-variable">req</span>.<span class="code-variable">Question</span>, <span class="code-variable">context</span>);
+
+    <span class="code-comment">// 3. Retornar JSON tipado al cliente</span>
+    <span class="code-keyword">return</span> <span class="code-type">Results</span>.<span class="code-method">Ok</span>(<span class="code-variable">answer</span>);
+<span class="code-keyword">});</span>
+
+<span class="code-variable">app</span>.<span class="code-method">Run</span>();</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 3: MCP -->
+    <section id="mcp" class="py-20 bg-white" data-sco-id="sco_topic3">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-up">
+                    <img src="https://image.qwenlm.ai/public_source/a87c8742-10ec-43bf-ae16-94e4d7ce60b6/15052966f-eacc-4410-a240-df94b8d33bce.png" 
+                         alt="Arquitectura MCP" 
+                         class="rounded-2xl shadow-xl w-full bg-slate-100 p-8">
+                </div>
+                <div class="fade-up">
+                    <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 3</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Model Context Protocol (MCP)</h2>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        <strong>MCP</strong> es un estándar abierto impulsado por Anthropic que estandariza la forma en que los LLMs se conectan con datos y herramientas locales. Es el "USB-C" de la inteligencia artificial.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <h4 class="font-semibold text-slate-800 mb-2">🔌 Estandarización</h4>
+                            <p class="text-sm text-slate-600">Un solo protocolo para conectar cualquier LLM con cualquier fuente de datos o herramienta, sin integraciones ad-hoc.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <h4 class="font-semibold text-slate-800 mb-2">🔒 Seguridad y Control</h4>
+                            <p class="text-sm text-slate-600">El usuario mantiene el control total. Los datos nunca salen del entorno local a menos que se configure explícitamente.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <h4 class="font-semibold text-slate-800 mb-2">🏗️ Arquitectura Cliente-Servidor</h4>
+                            <p class="text-sm text-slate-600">El <strong>Host</strong> (tu app .NET) se conecta a <strong>Servidores MCP</strong> que exponen recursos y herramientas específicas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 4: Tools en C# -->
+    <section id="tools" class="py-20 bg-slate-900 text-white" data-sco-id="sco_topic4">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-bold mb-4">TEMA 4</span>
+                <h2 class="text-3xl md:text-4xl font-bold">Tools en C#: JSON-RPC</h2>
+                <p class="text-slate-400 mt-4 max-w-2xl mx-auto">Implementa la lógica para que el LLM invoque funciones de C# basándose en el contexto de la conversación, usando el estándar JSON-RPC sobre stdio o SSE.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-12">
+                <div class="fade-up p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+                    <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        El Flujo de una Tool Call
+                    </h3>
+                    <ol class="space-y-3 text-sm text-slate-300">
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+                            <span>El cliente .NET envía el mensaje del usuario junto con la lista de <strong>tools disponibles</strong> (descripciones en JSON).</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+                            <span>El LLM decide si necesita usar una herramienta y responde con un objeto <code class="text-brand-300">tool_call</code> en lugar de texto.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+                            <span>La aplicación .NET ejecuta la función de C# correspondiente con los argumentos proporcionados.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+                            <span>El resultado se envía de vuelta al LLM como un mensaje de tipo <code class="text-brand-300">tool</code> para que genere la respuesta final.</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="fade-up p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+                    <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Implementación en C# Puro
+                    </h3>
+                    <ul class="space-y-3 text-sm text-slate-300">
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400 mt-1">✓</span>
+                            <span>Definir herramientas como métodos con atributos personalizados (<code class="text-brand-300">[McpTool]</code>).</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400 mt-1">✓</span>
+                            <span>Serializar la lista de herramientas al formato esperado por el LLM (OpenAI function calling format).</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400 mt-1">✓</span>
+                            <span>Usar un <code class="text-brand-300">switch</code> o diccionario de delegados para enrutar la llamada al método correcto.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400 mt-1">✓</span>
+                            <span>Manejar errores de ejecución de herramientas y devolver mensajes de error estructurados al LLM.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tools Code Example -->
+            <div class="fade-up">
+                <h3 class="font-bold text-2xl mb-6 text-center">Ejemplo: Definición y Ejecución de Tools</h3>
+                <div class="terminal max-w-5xl mx-auto">
+                    <div class="terminal-header">
+                        <span class="terminal-dot bg-red-500"></span>
+                        <span class="terminal-dot bg-yellow-500"></span>
+                        <span class="terminal-dot bg-green-500"></span>
+                        <span class="text-xs text-slate-400 ml-2">ToolService.cs - Registro y ejecución</span>
+                    </div>
+                    <div class="terminal-body">
+<pre class="text-sm"><span class="code-comment">// 1. Definir la herramienta</span>
+<span class="code-keyword">public class</span> <span class="code-type">WeatherTool</span>
+<span class="code-keyword">{</span>
+    [<span class="code-type">McpTool</span>(<span class="code-string">"get_weather"</span>, <span class="code-string">"Obtiene el clima actual de una ciudad"</span>)]
+    <span class="code-keyword">public</span> <span class="code-type">WeatherData</span> <span class="code-method">Execute</span>(<span class="code-type">string</span> <span class="code-variable">city</span>)
+    <span class="code-keyword">{</span>
+        <span class="code-comment">// Lógica de negocio real en C#</span>
+        <span class="code-keyword">return new</span> <span class="code-type">WeatherData</span>(<span class="code-variable">city</span>, <span class="code-number">22</span>, <span class="code-string">"Soleado"</span>);
+    <span class="code-keyword">}</span>
+<span class="code-keyword">}</span>
+
+<span class="code-comment">// 2. Procesar la decisión del LLM</span>
+<span class="code-keyword">public async</span> <span class="code-type">Task</span>&lt;<span class="code-type">string</span>&gt; <span class="code-method">ProcessToolCallAsync</span>(<span class="code-type">ToolCall</span> <span class="code-variable">call</span>)
+<span class="code-keyword">{</span>
+    <span class="code-keyword">switch</span> (<span class="code-variable">call</span>.<span class="code-variable">Name</span>)
+    <span class="code-keyword">{</span>
+        <span class="code-keyword">case</span> <span class="code-string">"get_weather"</span>:
+            <span class="code-keyword">var</span> <span class="code-variable">args</span> = <span class="code-type">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-type">WeatherArgs</span>&gt;(<span class="code-variable">call</span>.<span class="code-variable">Arguments</span>);
+            <span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-keyword">new</span> <span class="code-type">WeatherTool</span>().<span class="code-method">Execute</span>(<span class="code-variable">args</span>.<span class="code-variable">City</span>);
+            <span class="code-keyword">return</span> <span class="code-type">JsonSerializer</span>.<span class="code-method">Serialize</span>(<span class="code-variable">result</span>);
+            
+        <span class="code-keyword">default</span>:
+            <span class="code-keyword">throw new</span> <span class="code-type">InvalidOperationException</span>(<span class="code-string">$"Tool desconocida: {call.Name}"</span>);
+    <span class="code-keyword">}</span>
+<span class="code-keyword">}</span></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evaluación / Quiz Section -->
+    <section id="evaluacion" class="py-20 bg-white" data-sco-id="sco_quiz">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="text-center mb-12 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold mb-4">EVALUACIÓN FINAL DEL CURSO</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800">Verifica tu comprensión</h2>
+                <p class="text-slate-600 mt-4">Responde correctamente las 4 preguntas para completar el Módulo 4 y el curso completo.</p>
+            </div>
+
+            <div class="space-y-6 fade-up" id="quiz-container">
+                <!-- Pregunta 1 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="1">
+                    <h3 class="font-semibold text-slate-800 mb-4">1. ¿Qué parámetro JSON se envía a Ollama para forzar una respuesta en formato JSON válido?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">"json_mode": true</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">"format": "json"</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">"response_type": "structured"</code></span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 2 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="2">
+                    <h3 class="font-semibold text-slate-800 mb-4">2. En una Minimal API de .NET, ¿qué método se usa para mapear un endpoint POST?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">app.MapGet()</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">app.MapPost()</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">app.AddEndpoint()</code></span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 3 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="3">
+                    <h3 class="font-semibold text-slate-800 mb-4">3. ¿Qué empresa impulsó el estándar Model Context Protocol (MCP)?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">OpenAI</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">Microsoft</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">Anthropic</span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 4 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="4">
+                    <h3 class="font-semibold text-slate-800 mb-4">4. ¿Qué protocolo de comunicación utiliza MCP para intercambiar mensajes entre el cliente y el servidor de herramientas?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">SOAP</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">JSON-RPC</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">GraphQL</span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <button onclick="evaluateQuiz()" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-colors shadow-lg">
+                    Enviar Respuestas
+                </button>
+            </div>
+
+            <div id="quiz-result" class="hidden mt-8 p-6 rounded-xl text-center"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">M4</div>
+                        <span class="font-bold text-white">Módulo 4</span>
+                    </div>
+                    <p class="text-sm">Salida Estructurada y Model Context Protocol. El cierre del curso de IA Open Source en .NET.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Temas Cubiertos</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>JSON Mode & System.Text.Json</li>
+                        <li>Minimal API .NET</li>
+                        <li>Model Context Protocol</li>
+                        <li>Tools & JSON-RPC en C#</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Curso Completado</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="text-brand-400">¡Felicidades!</li>
+                        <li>8 horas de capacitación</li>
+                        <li>4 módulos SCORM</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">SCORM</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>Versión: 1.2</li>
+                        <li>SCO ID: sco_module4</li>
+                        <li>Estado: <span id="footer-scorm-status" class="text-emerald-400">Activo</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">© 2026 IA Open Source .NET Training · Módulo 4 de 4</p>
+                <p class="text-xs">Compatible con SCORM 1.2 / 2004 · LMS Ready</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-800 text-white px-6 py-4 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div>
+                <div class="font-semibold text-sm" id="toast-title">Éxito</div>
+                <div class="text-xs text-slate-400" id="toast-message">Operación completada</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SCORM 1.2 Mock API
+        // ============================================
+        (function initializeScormAPI() {
+            const scormData = {
+                'cmi.core.lesson_status': 'not attempted',
+                'cmi.core.score.raw': '0',
+                'cmi.core.score.max': '100',
+                'cmi.core.entry': '',
+                'cmi.core.exit': '',
+                'cmi.core.session_time': '00:00:00',
+                'cmi.suspend_data': '',
+                'cmi.core.lesson_location': 'sco_module4',
+                'initialized': false
+            };
+
+            const scormAPI = {
+                LMSInitialize: function(param) {
+                    scormData.initialized = true;
+                    scormData['cmi.core.lesson_status'] = 'incomplete';
+                    updateScormStatus('Módulo 4 iniciado');
+                    console.log('[SCORM] LMSInitialize called');
+                    return 'true';
+                },
+                LMSFinish: function(param) {
+                    scormData['cmi.core.lesson_status'] = 'completed';
+                    scormData['cmi.core.exit'] = 'logout';
+                    updateScormStatus('Módulo 4 completado');
+                    console.log('[SCORM] LMSFinish called');
+                    return 'true';
+                },
+                LMSGetValue: function(element) {
+                    const value = scormData[element] !== undefined ? scormData[element] : '';
+                    console.log(`[SCORM] LMSGetValue(${element}) = ${value}`);
+                    return value;
+                },
+                LMSSetValue: function(element, value) {
+                    scormData[element] = value;
+                    console.log(`[SCORM] LMSSetValue(${element}, ${value})`);
+                    return 'true';
+                },
+                LMSCommit: function(param) {
+                    console.log('[SCORM] LMSCommit');
+                    return 'true';
+                },
+                LMSGetLastError: function() { return '0'; },
+                LMSGetErrorString: function(code) { return 'No error'; },
+                LMSGetDiagnostic: function(code) { return ''; }
+            };
+
+            window.API = scormAPI;
+            window.API_1484_11 = scormAPI;
+            
+            setTimeout(function() {
+                if (!window.parent.API && !window.top.API) {
+                    window.API = scormAPI;
+                    scormAPI.LMSInitialize('');
+                }
+            }, 100);
+        })();
+
+        // ============================================
+        // SCORM Progress Management
+        // ============================================
+        const totalTopics = 4;
+        const completedTopics = new Set();
+
+        function updateScormProgress() {
+            const progressPercent = Math.round((completedTopics.size / totalTopics) * 100);
+            const progressFill = document.getElementById('scorm-progress-fill');
+            const progressPercentEl = document.getElementById('scorm-progress-percent');
+            
+            if (progressFill) progressFill.style.width = progressPercent + '%';
+            if (progressPercentEl) progressPercentEl.textContent = progressPercent + '%';
+
+            if (window.API) {
+                window.API.LMSSetValue('cmi.core.score.raw', progressPercent.toString());
+                window.API.LMSCommit('');
+            }
+
+            if (progressPercent === 100) {
+                updateScormStatus('Módulo 4 completado al 100%');
+                if (window.API) {
+                    window.API.LMSSetValue('cmi.core.lesson_status', 'completed');
+                    window.API.LMSCommit('');
+                }
+            }
+        }
+
+        function updateScormStatus(statusText) {
+            const statusEl = document.getElementById('scorm-status-text');
+            const footerStatusEl = document.getElementById('footer-scorm-status');
+            if (statusEl) statusEl.textContent = 'Estado: ' + statusText;
+            if (footerStatusEl) footerStatusEl.textContent = statusText;
+        }
+
+        function completeTopic(topicId) {
+            completedTopics.add(topicId);
+            updateScormProgress();
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast-notification');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+            
+            if (toastTitle) toastTitle.textContent = title;
+            if (toastMessage) toastMessage.textContent = message;
+            
+            if (toast) {
+                toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+                setTimeout(function() {
+                    toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+                }, 3000);
+            }
+        }
+
+        // ============================================
+        // Navigation & Scroll
+        // ============================================
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // ============================================
+        // Quiz Logic
+        // ============================================
+        const correctAnswers = {
+            q1: 'b',
+            q2: 'b',
+            q3: 'c',
+            q4: 'b'
+        };
+
+        const explanations = {
+            q1: 'Correcto: El parámetro "format": "json" en el payload de Ollama fuerza al modelo a generar exclusivamente JSON válido.',
+            q2: 'Correcto: app.MapPost() es el método de Minimal API en .NET para mapear un endpoint que acepta peticiones POST.',
+            q3: 'Correcto: Anthropic impulsó el estándar Model Context Protocol (MCP) para estandarizar la conexión entre LLMs y herramientas locales.',
+            q4: 'Correcto: MCP utiliza JSON-RPC como protocolo de comunicación para intercambiar mensajes estructurados entre cliente y servidor.'
+        };
+
+        function evaluateQuiz() {
+            let correctCount = 0;
+            let allAnswered = true;
+
+            for (let q = 1; q <= 4; q++) {
+                const questionName = 'q' + q;
+                const selected = document.querySelector(`input[name="${questionName}"]:checked`);
+                const feedbackEl = document.querySelector(`[data-question="${q}"] .feedback`);
+                
+                if (!selected) {
+                    allAnswered = false;
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '⚠️ Selecciona una respuesta';
+                        feedbackEl.className = 'feedback mt-3 text-sm text-amber-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                    continue;
+                }
+
+                const isCorrect = selected.value === correctAnswers[questionName];
+                
+                if (isCorrect) {
+                    correctCount++;
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '✓ ' + explanations[questionName];
+                        feedbackEl.className = 'feedback mt-3 text-sm text-emerald-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                } else {
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '✗ Respuesta incorrecta. Revisa el contenido del módulo.';
+                        feedbackEl.className = 'feedback mt-3 text-sm text-red-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                }
+            }
+
+            if (!allAnswered) {
+                showToast('Respuestas incompletas', 'Por favor responde todas las preguntas');
+                return;
+            }
+
+            const resultDiv = document.getElementById('quiz-result');
+            const scorePercent = Math.round((correctCount / 4) * 100);
+            
+            if (correctCount === 4) {
+                resultDiv.className = 'mt-8 p-6 rounded-xl text-center bg-emerald-50 border border-emerald-200';
+                resultDiv.innerHTML = `
+                    <div class="text-5xl mb-3"></div>
+                    <h3 class="text-xl font-bold text-emerald-800 mb-2">¡Curso Completado!</h3>
+                    <p class="text-emerald-700">Obtuviste ${correctCount}/4 respuestas correctas (${scorePercent}%)</p>
+                    <p class="text-sm text-emerald-600 mt-2">Has dominado la integración de IA Open Source en .NET</p>
+                `;
+                completeTopic('sco_module4');
+                showToast('¡Felicitaciones!', 'Curso completado exitosamente');
+                
+                if (window.API) {
+                    window.API.LMSSetValue('cmi.core.lesson_status', 'completed');
+                    window.API.LMSSetValue('cmi.core.score.raw', '100');
+                    window.API.LMSCommit('');
+                }
+            } else {
+                resultDiv.className = 'mt-8 p-6 rounded-xl text-center bg-amber-50 border border-amber-200';
+                resultDiv.innerHTML = `
+                    <div class="text-5xl mb-3">📚</div>
+                    <h3 class="text-xl font-bold text-amber-800 mb-2">Casi lo logras</h3>
+                    <p class="text-amber-700">Obtuviste ${correctCount}/4 respuestas correctas</p>
+                    <p class="text-sm text-amber-600 mt-2">Revisa los temas marcados en rojo e intenta de nuevo</p>
+                `;
+                completeTopic('sco_module4_partial');
+                showToast('Resultado parcial', `${correctCount}/4 correctas. ¡Sigue intentando!`);
+            }
+            
+            resultDiv.classList.remove('hidden');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // ============================================
+        // Intersection Observer for Animations
+        // ============================================
+        (function setupScrollAnimations() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        const scoId = entry.target.getAttribute('data-sco-id');
+                        if (scoId && scoId.startsWith('sco_topic')) {
+                            completeTopic(scoId);
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            const fadeElements = document.querySelectorAll('.fade-up');
+            fadeElements.forEach(function(el) {
+                observer.observe(el);
+            });
+        })();
+
+        // ============================================
+        // Initialize
+        // ============================================
+        window.addEventListener('load', function() {
+            if (window.API && !window.API.LMSGetValue('cmi.core.lesson_status')) {
+                window.API.LMSInitialize('');
+            }
+            updateScormStatus('Módulo 4 listo');
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (window.API) {
+                window.API.LMSCommit('');
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -24,6 +24,6 @@ namespace BusinessLogic.IA.Providers
         /// </summary>
         /// <param name="prompt">Prompt completo (incluye contexto RAG si aplica).</param>
         /// <returns>Texto generado o null si hubo error.</returns>
-        Task<string?> GetCompletionAsync(string prompt);
+        Task<string?> GetCompletionAsync(string prompt, List<ChatMessage> messages);
     }
 }

@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Módulo 1: Fundamentos y Entornos Locales - IA Open Source en .NET">
+    <meta name="scorm-version" content="1.2">
+    <meta name="scorm-title" content="IA Open Source en .NET - Módulo 1: Fundamentos y Entornos Locales">
+    <title>Módulo 1 | Fundamentos y Entornos Locales - IA Open Source .NET</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/index.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'Courier New', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+        }
+        
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .module-card {
+            transition: all 0.3s ease;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .scorm-progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #6366f1;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .pulse-dot {
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .terminal {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            color: #c9d1d9;
+        }
+        .terminal-header {
+            background: #161b22;
+            padding: 8px 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .terminal-body {
+            padding: 16px;
+            overflow-x: auto;
+        }
+        .prompt { color: #7ee787; }
+        .command { color: #c9d1d9; }
+        .comment { color: #8b949e; font-style: italic; }
+        .string { color: #a5d6ff; }
+        .number { color: #ffa657; }
+        .keyword { color: #ff7b72; }
+
+        .comparison-table tr:nth-child(even) {
+            background: rgba(99, 102, 241, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- SCORM Progress Tracker -->
+    <div id="scorm-tracker" class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+                <span>SCORM 1.2 · Módulo 1</span>
+                <span class="hidden sm:inline text-slate-400">|</span>
+                <span class="hidden sm:inline" id="scorm-status-text">Estado: Inicializando...</span>
+            </div>
+            <div class="flex items-center gap-3 flex-1 max-w-md">
+                <div class="text-xs font-medium text-slate-600 whitespace-nowrap">Progreso:</div>
+                <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="scorm-progress-fill" class="scorm-progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-700 rounded-full" style="width: 0%"></div>
+                </div>
+                <span id="scorm-progress-percent" class="text-xs font-bold text-brand-600 w-10 text-right">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-10 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">M1</div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-slate-800 text-sm leading-tight">Fundamentos y Entornos Locales</span>
+                    <span class="text-xs text-slate-500 leading-tight">Encuentro 1 · Horas 1-2</span>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+                <a href="#ia-opensource" class="nav-link hover:text-brand-600">IA Open Source</a>
+                <a href="#cuantizacion" class="nav-link hover:text-brand-600">Cuantización</a>
+                <a href="#destilacion" class="nav-link hover:text-brand-600">Destilación</a>
+                <a href="#despliegue" class="nav-link hover:text-brand-600">Despliegue</a>
+            </div>
+            <button onclick="scrollToSection('evaluacion')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors">
+                Evaluación
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-gradient pt-32 pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-brand-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-up">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-medium mb-6">
+                        <span class="px-2 py-0.5 rounded bg-brand-500 text-white font-bold">MÓDULO 1</span>
+                        <span>Encuentro 1 · Horas 1-2</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                        Fundamentos y <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-purple-300">Entornos Locales</span>
+                    </h1>
+                    <p class="text-lg text-slate-300 mb-8 leading-relaxed">
+                        Comprende el ecosistema de IA Open Source, los fundamentos de cuantización y destilación, y despliega tus primeros servidores locales de inferencia sin depender de la nube.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                            <div class="text-2xl font-bold text-white">4</div>
+                            <div class="text-xs text-slate-400">Temas clave</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                            <div class="text-2xl font-bold text-white">2h</div>
+                            <div class="text-xs text-slate-400">Duración</div>
+                        </div>
+                    </div>
+                    <button onclick="scrollToSection('ia-opensource')" class="px-6 py-3 bg-white text-brand-700 font-semibold rounded-lg hover:bg-slate-100 transition-colors shadow-lg">
+                        Comenzar Módulo →
+                    </button>
+                </div>
+                <div class="fade-up hidden lg:block">
+                    <img src="https://image.qwenlm.ai/public_source/a87c8742-10ec-43bf-ae16-94e4d7ce60b6/10b799b15-9c66-42f2-8ba0-48534c5c58a8.png" 
+                         alt="IA Open Source con Entornos Locales" 
+                         class="rounded-2xl shadow-2xl border border-white/10 w-full">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Topic 1: IA Open Source -->
+    <section id="ia-opensource" class="py-20 bg-white" data-sco-id="sco_topic1">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid lg:grid-cols-5 gap-12 items-start">
+                <div class="lg:col-span-2 fade-up">
+                    <div class="sticky top-32">
+                        <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 1</span>
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">IA Open Source: El Ecosistema</h2>
+                        <p class="text-slate-600 leading-relaxed">
+                            Entender la diferencia entre modelos propietarios y open source es el primer paso para tomar el control de tu infraestructura de IA.
+                        </p>
+                    </div>
+                </div>
+                <div class="lg:col-span-3 fade-up space-y-6">
+                    <div class="p-6 rounded-xl bg-slate-50 border border-slate-200">
+                        <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            Modelos Propietarios
+                        </h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li>• API externa (OpenAI, Anthropic, Google)</li>
+                            <li>• Datos enviados a servidores de terceros</li>
+                            <li>• Costos recurrentes por token</li>
+                            <li>• Sin control sobre el modelo base</li>
+                            <li>• Vendor lock-in</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 rounded-xl bg-brand-50 border border-brand-200">
+                        <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            Modelos Open Source
+                        </h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li>• Ejecución 100% local (privacidad total)</li>
+                            <li>• Pesos del modelo disponibles públicamente</li>
+                            <li>• Fine-tuning y cuantización personalizados</li>
+                            <li>• Sin costos recurrentes de API</li>
+                            <li>• Comunidad activa (Hugging Face, GitHub)</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-6 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+                        <h3 class="font-bold mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"></path></svg>
+                            Hugging Face: El GitHub de la IA
+                        </h3>
+                        <p class="text-sm text-slate-300 mb-3">
+                            Plataforma central del ecosistema. Repositorio de modelos, datasets y espacios de demostración.
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="px-2 py-1 rounded bg-white/10">🤗 Transformers</span>
+                            <span class="px-2 py-1 rounded bg-white/10"> Datasets</span>
+                            <span class="px-2 py-1 rounded bg-white/10">🚀 Spaces</span>
+                            <span class="px-2 py-1 rounded bg-white/10">📝 Papers</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 2: Cuantización -->
+    <section id="cuantizacion" class="py-20 bg-slate-50" data-sco-id="sco_topic2">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 2</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800">Cuantización: Hacer viable la IA local</h2>
+                <p class="text-slate-600 mt-4 max-w-2xl mx-auto">Reducir la precisión de los pesos del modelo para que quepa en hardware consumidor, manteniendo la mayor parte de su capacidad.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-12">
+                <div class="fade-up p-8 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-xl text-slate-800 mb-4">¿Qué es la Cuantización?</h3>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        Es el proceso de reducir la precisión numérica de los pesos del modelo (de <code class="px-1.5 py-0.5 rounded bg-slate-100 text-brand-600 text-sm font-mono">float32</code> a <code class="px-1.5 py-0.5 rounded bg-slate-100 text-brand-600 text-sm font-mono">int4</code>), reduciendo drásticamente el consumo de memoria RAM/VRAM con una pérdida mínima de calidad.
+                    </p>
+                    <div class="p-4 rounded-lg bg-amber-50 border border-amber-200">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl"></span>
+                            <div>
+                                <div class="font-semibold text-amber-900 text-sm">Regla de Oro</div>
+                                <div class="text-sm text-amber-800 mt-1"><strong>1B de parámetros ≈ 0.7 - 1 GB de RAM</strong> en formato GGUF Q4_K_M</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fade-up p-8 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-xl text-slate-800 mb-4">Formato GGUF</h3>
+                    <p class="text-slate-600 mb-4 leading-relaxed">
+                        <strong>GGUF (GPT-Generated Unified Format)</strong> es el formato estándar creado por el equipo de llama.cpp. Permite cargar modelos cuantizados de forma eficiente en CPU y GPU.
+                    </p>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-600 mt-1">✓</span>
+                            <span>Metadatos embebidos (tokenizer, chat template)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-600 mt-1">✓</span>
+                            <span>Memory-mapped para carga rápida</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-600 mt-1">✓</span>
+                            <span>Compatible con Ollama, LM Studio, llama.cpp</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="fade-up">
+                <h3 class="font-bold text-2xl text-slate-800 mb-6 text-center">Comparativa de Niveles de Cuantización</h3>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                    <table class="w-full comparison-table text-sm">
+                        <thead class="bg-slate-800 text-white">
+                            <tr>
+                                <th class="px-6 py-4 text-left">Formato</th>
+                                <th class="px-6 py-4 text-left">Bits por peso</th>
+                                <th class="px-6 py-4 text-left">Tamaño (7B)</th>
+                                <th class="px-6 py-4 text-left">Calidad</th>
+                                <th class="px-6 py-4 text-left">Uso recomendado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-700">
+                            <tr class="border-b border-slate-100">
+                                <td class="px-6 py-4 font-mono font-semibold">Q2_K</td>
+                                <td class="px-6 py-4">~2.5</td>
+                                <td class="px-6 py-4">~2.8 GB</td>
+                                <td class="px-6 py-4"><span class="text-red-600">Baja</span></td>
+                                <td class="px-6 py-4">Hardware muy limitado</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="px-6 py-4 font-mono font-semibold">Q4_K_M</td>
+                                <td class="px-6 py-4">~4.5</td>
+                                <td class="px-6 py-4">~4.4 GB</td>
+                                <td class="px-6 py-4"><span class="text-amber-600">Buena</span></td>
+                                <td class="px-6 py-4 font-semibold text-brand-600">⭐ Sweet spot (recomendado)</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="px-6 py-4 font-mono font-semibold">Q5_K_M</td>
+                                <td class="px-6 py-4">~5.5</td>
+                                <td class="px-6 py-4">~5.2 GB</td>
+                                <td class="px-6 py-4"><span class="text-emerald-600">Muy buena</span></td>
+                                <td class="px-6 py-4">GPU con 8GB VRAM</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="px-6 py-4 font-mono font-semibold">Q8_0</td>
+                                <td class="px-6 py-4">~8.5</td>
+                                <td class="px-6 py-4">~7.8 GB</td>
+                                <td class="px-6 py-4"><span class="text-emerald-600">Excelente</span></td>
+                                <td class="px-6 py-4">Casi indistinguible del original</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 font-mono font-semibold">F16</td>
+                                <td class="px-6 py-4">16</td>
+                                <td class="px-6 py-4">~14 GB</td>
+                                <td class="px-6 py-4"><span class="text-emerald-600">Original</span></td>
+                                <td class="px-6 py-4">Fine-tuning, investigación</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 3: Destilación -->
+    <section id="destilacion" class="py-20 bg-white" data-sco-id="sco_topic3">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-up order-2 lg:order-1">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-brand-500/20 to-purple-500/20 rounded-2xl blur-2xl"></div>
+                        <div class="relative p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-brand-900 text-white">
+                            <h4 class="font-bold text-lg mb-6 text-center">Proceso de Destilación</h4>
+                            <div class="flex flex-col items-center gap-4">
+                                <div class="w-full max-w-xs p-4 rounded-xl bg-white/10 border border-white/20 text-center">
+                                    <div class="text-xs text-brand-200 mb-1">Teacher Model</div>
+                                    <div class="font-bold text-lg">Llama-3-70B</div>
+                                    <div class="text-xs text-slate-300 mt-1">400B parámetros · Alta precisión</div>
+                                </div>
+                                <div class="text-brand-400">
+                                    <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                </div>
+                                <div class="text-xs text-slate-300 text-center px-4">
+                                    Transfiere conocimiento mediante<br>logits y representaciones
+                                </div>
+                                <div class="text-brand-400">
+                                    <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                </div>
+                                <div class="w-full max-w-xs p-4 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 border border-white/20 text-center">
+                                    <div class="text-xs text-white/80 mb-1">Student Model</div>
+                                    <div class="font-bold text-lg">Phi-3-mini (3.8B)</div>
+                                    <div class="text-xs text-white/80 mt-1">Eficiente · Ejecutable localmente</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fade-up order-1 lg:order-2">
+                    <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 3</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Destilación: Lo grande se hace pequeño</h2>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        La <strong>destilación</strong> permite que modelos pequeños "aprendan" de modelos gigantes, heredando sus capacidades de razonamiento pero ejecutándose en hardware modesto.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-bold">Microsoft</span>
+                                <span class="font-bold text-slate-800">Phi-3 / Phi-3.5 (3.8B)</span>
+                            </div>
+                            <p class="text-sm text-slate-600">Entrenado con datos sintéticos de alta calidad. Razonamiento comparable a modelos 25x más grandes.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="px-2 py-1 rounded bg-orange-100 text-orange-700 text-xs font-bold">Meta</span>
+                                <span class="font-bold text-slate-800">Llama-3-8B</span>
+                            </div>
+                            <p class="text-sm text-slate-600">El estándar de facto para despliegue local. Excelente balance entre capacidad y recursos.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="px-2 py-1 rounded bg-red-100 text-red-700 text-xs font-bold">Alibaba</span>
+                                <span class="font-bold text-slate-800">Qwen2.5 (3B / 7B)</span>
+                            </div>
+                            <p class="text-sm text-slate-600">Multilingüe nativo, excelente en código y matemáticas. Muy competitivo en benchmarks.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 4: Despliegue -->
+    <section id="despliegue" class="py-20 bg-slate-900 text-white" data-sco-id="sco_topic4">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-bold mb-4">TEMA 4</span>
+                <h2 class="text-3xl md:text-4xl font-bold">Despliegue de Servidores Locales</h2>
+                <p class="text-slate-400 mt-4 max-w-2xl mx-auto">Configura tu infraestructura de inferencia local. Python solo se usa dentro de los binarios nativos, nunca en tu código de aplicación .NET.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-12">
+                <!-- Ollama -->
+                <div class="fade-up module-card rounded-2xl bg-slate-800/50 border border-slate-700 overflow-hidden">
+                    <div class="p-6 border-b border-slate-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-xl">Ollama</h3>
+                            <span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold">RECOMENDADO</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                            <code class="text-brand-300">http://localhost:11434</code>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-sm text-slate-400 mb-4">Motor basado en llama.cpp. Gestión de modelos vía CLI. API REST nativa.</p>
+                        <div class="terminal">
+                            <div class="terminal-header">
+                                <span class="terminal-dot bg-red-500"></span>
+                                <span class="terminal-dot bg-yellow-500"></span>
+                                <span class="terminal-dot bg-green-500"></span>
+                                <span class="text-xs text-slate-400 ml-2">Terminal</span>
+                            </div>
+                            <div class="terminal-body text-sm">
+                                <div><span class="comment"># Instalar Ollama</span></div>
+                                <div><span class="prompt">$</span> <span class="command">curl -fsSL https://ollama.com/install.sh | sh</span></div>
+                                <div class="mt-3"><span class="comment"># Descargar modelo Llama 3.2 (3B)</span></div>
+                                <div><span class="prompt">$</span> <span class="command">ollama pull llama3.2</span></div>
+                                <div class="mt-3"><span class="comment"># Descargar modelo de embeddings</span></div>
+                                <div><span class="prompt">$</span> <span class="command">ollama pull nomic-embed-text</span></div>
+                                <div class="mt-3"><span class="comment"># Listar modelos instalados</span></div>
+                                <div><span class="prompt">$</span> <span class="command">ollama list</span></div>
+                                <div class="mt-3"><span class="comment"># Probar chat interactivo</span></div>
+                                <div><span class="prompt">$</span> <span class="command">ollama run llama3.2</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LM Studio -->
+                <div class="fade-up module-card rounded-2xl bg-slate-800/50 border border-slate-700 overflow-hidden">
+                    <div class="p-6 border-b border-slate-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-xl">LM Studio</h3>
+                            <span class="px-2 py-1 rounded bg-blue-500/20 text-blue-400 text-xs font-bold">GUI FRIENDLY</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                            <code class="text-brand-300">http://localhost:1234/v1</code>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-sm text-slate-400 mb-4">Interfaz gráfica para gestión visual. Compatible con API de OpenAI. Ideal para desarrollo rápido.</p>
+                        <div class="terminal">
+                            <div class="terminal-header">
+                                <span class="terminal-dot bg-red-500"></span>
+                                <span class="terminal-dot bg-yellow-500"></span>
+                                <span class="terminal-dot bg-green-500"></span>
+                                <span class="text-xs text-slate-400 ml-2">API Request (cURL)</span>
+                            </div>
+                            <div class="terminal-body text-sm">
+                                <div><span class="comment"># Endpoint compatible OpenAI</span></div>
+                                <div><span class="prompt">$</span> <span class="command">curl http://localhost:1234/v1/chat/completions \</span></div>
+                                <div class="pl-4"><span class="command">-H "Content-Type: application/json" \</span></div>
+                                <div class="pl-4"><span class="command">-d '{</span></div>
+                                <div class="pl-8"><span class="string">"model"</span>: <span class="string">"llama-3.2-3b"</span>,</div>
+                                <div class="pl-8"><span class="string">"messages"</span>: [{</div>
+                                <div class="pl-12"><span class="string">"role"</span>: <span class="string">"user"</span>,</div>
+                                <div class="pl-12"><span class="string">"content"</span>: <span class="string">"Hola"</span></div>
+                                <div class="pl-8">}]</div>
+                                <div class="pl-4"><span class="command">}'</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Endpoints Reference -->
+            <div class="fade-up rounded-2xl bg-slate-800/30 border border-slate-700 p-8">
+                <h3 class="font-bold text-xl mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    Referencia Rápida de Endpoints
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-brand-300 mb-3 text-sm uppercase tracking-wider">Ollama API</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                <code class="text-emerald-400">POST /api/generate</code>
+                                <span class="text-slate-400 text-xs">Generación cruda</span>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                <code class="text-emerald-400">POST /api/chat</code>
+                                <span class="text-slate-400 text-xs">Chat con mensajes</span>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                <code class="text-emerald-400">POST /api/embeddings</code>
+                                <span class="text-slate-400 text-xs">Vectorización</span>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                <code class="text-emerald-400">GET /api/tags</code>
+                                <span class="text-slate-400 text-xs">Listar modelos</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-brand-300 mb-3 text-sm uppercase tracking-wider">LM Studio (OpenAI Compat)</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                <code class="text-emerald-400">POST /v1/chat/completions</code>
+                                <span class="text-slate-400 text-xs">Chat</span>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                <code class="text-emerald-400">POST /v1/completions</code>
+                                <span class="text-slate-400 text-xs">Completado</span>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                <code class="text-emerald-400">POST /v1/embeddings</code>
+                                <span class="text-slate-400 text-xs">Embeddings</span>
+                            </li>
+                            <li class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                <code class="text-emerald-400">GET /v1/models</code>
+                                <span class="text-slate-400 text-xs">Listar modelos</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evaluación / Quiz Section -->
+    <section id="evaluacion" class="py-20 bg-white" data-sco-id="sco_quiz">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="text-center mb-12 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold mb-4">EVALUACIÓN DEL MÓDULO</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800">Verifica tu comprensión</h2>
+                <p class="text-slate-600 mt-4">Responde correctamente las 4 preguntas para completar el Módulo 1.</p>
+            </div>
+
+            <div class="space-y-6 fade-up" id="quiz-container">
+                <!-- Pregunta 1 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="1">
+                    <h3 class="font-semibold text-slate-800 mb-4">1. ¿Cuál es la regla empírica de consumo de RAM para un modelo GGUF Q4_K_M?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">1B parámetros ≈ 2-3 GB de RAM</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">1B parámetros ≈ 0.7-1 GB de RAM</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">1B parámetros ≈ 5 GB de RAM</span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 2 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="2">
+                    <h3 class="font-semibold text-slate-800 mb-4">2. ¿Qué formato de cuantización es el estándar creado por el equipo de llama.cpp?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">SAFETENSORS</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">GGUF</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">ONNX</span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 3 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="3">
+                    <h3 class="font-semibold text-slate-800 mb-4">3. ¿Qué modelo pequeño (3.8B) fue desarrollado por Microsoft usando destilación con datos sintéticos?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">Llama-3-8B</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">Qwen2.5-7B</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">Phi-3-mini</span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 4 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="4">
+                    <h3 class="font-semibold text-slate-800 mb-4">4. ¿En qué puerto expone Ollama su servidor local por defecto?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">localhost:8080</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">localhost:11434</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">localhost:3000</span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <button onclick="evaluateQuiz()" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-colors shadow-lg">
+                    Enviar Respuestas
+                </button>
+            </div>
+
+            <div id="quiz-result" class="hidden mt-8 p-6 rounded-xl text-center"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">M1</div>
+                        <span class="font-bold text-white">Módulo 1</span>
+                    </div>
+                    <p class="text-sm">Fundamentos y Entornos Locales para IA Open Source en .NET.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Temas Cubiertos</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>IA Open Source</li>
+                        <li>Cuantización GGUF</li>
+                        <li>Destilación</li>
+                        <li>Despliegue Local</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Siguiente Módulo</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="text-brand-400">Módulo 2 →</li>
+                        <li>Comunicación HTTPS Pura en .NET</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">SCORM</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>Versión: 1.2</li>
+                        <li>SCO ID: sco_module1</li>
+                        <li>Estado: <span id="footer-scorm-status" class="text-emerald-400">Activo</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">© 2026 IA Open Source .NET Training · Módulo 1 de 4</p>
+                <p class="text-xs">Compatible con SCORM 1.2 / 2004 · LMS Ready</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-800 text-white px-6 py-4 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div>
+                <div class="font-semibold text-sm" id="toast-title">Éxito</div>
+                <div class="text-xs text-slate-400" id="toast-message">Operación completada</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SCORM 1.2 Mock API
+        // ============================================
+        (function initializeScormAPI() {
+            const scormData = {
+                'cmi.core.lesson_status': 'not attempted',
+                'cmi.core.score.raw': '0',
+                'cmi.core.score.max': '100',
+                'cmi.core.entry': '',
+                'cmi.core.exit': '',
+                'cmi.core.session_time': '00:00:00',
+                'cmi.suspend_data': '',
+                'cmi.core.lesson_location': 'sco_module1',
+                'initialized': false
+            };
+
+            const scormAPI = {
+                LMSInitialize: function(param) {
+                    scormData.initialized = true;
+                    scormData['cmi.core.lesson_status'] = 'incomplete';
+                    updateScormStatus('Módulo 1 iniciado');
+                    console.log('[SCORM] LMSInitialize called');
+                    return 'true';
+                },
+                LMSFinish: function(param) {
+                    scormData['cmi.core.lesson_status'] = 'completed';
+                    scormData['cmi.core.exit'] = 'logout';
+                    updateScormStatus('Módulo 1 completado');
+                    console.log('[SCORM] LMSFinish called');
+                    return 'true';
+                },
+                LMSGetValue: function(element) {
+                    const value = scormData[element] !== undefined ? scormData[element] : '';
+                    console.log(`[SCORM] LMSGetValue(${element}) = ${value}`);
+                    return value;
+                },
+                LMSSetValue: function(element, value) {
+                    scormData[element] = value;
+                    console.log(`[SCORM] LMSSetValue(${element}, ${value})`);
+                    return 'true';
+                },
+                LMSCommit: function(param) {
+                    console.log('[SCORM] LMSCommit');
+                    return 'true';
+                },
+                LMSGetLastError: function() { return '0'; },
+                LMSGetErrorString: function(code) { return 'No error'; },
+                LMSGetDiagnostic: function(code) { return ''; }
+            };
+
+            window.API = scormAPI;
+            window.API_1484_11 = scormAPI;
+            
+            setTimeout(function() {
+                if (!window.parent.API && !window.top.API) {
+                    window.API = scormAPI;
+                    scormAPI.LMSInitialize('');
+                }
+            }, 100);
+        })();
+
+        // ============================================
+        // SCORM Progress Management
+        // ============================================
+        const totalTopics = 4;
+        const completedTopics = new Set();
+
+        function updateScormProgress() {
+            const progressPercent = Math.round((completedTopics.size / totalTopics) * 100);
+            const progressFill = document.getElementById('scorm-progress-fill');
+            const progressPercentEl = document.getElementById('scorm-progress-percent');
+            
+            if (progressFill) progressFill.style.width = progressPercent + '%';
+            if (progressPercentEl) progressPercentEl.textContent = progressPercent + '%';
+
+            if (window.API) {
+                window.API.LMSSetValue('cmi.core.score.raw', progressPercent.toString());
+                window.API.LMSCommit('');
+            }
+
+            if (progressPercent === 100) {
+                updateScormStatus('Módulo 1 completado al 100%');
+                if (window.API) {
+                    window.API.LMSSetValue('cmi.core.lesson_status', 'completed');
+                    window.API.LMSCommit('');
+                }
+            }
+        }
+
+        function updateScormStatus(statusText) {
+            const statusEl = document.getElementById('scorm-status-text');
+            const footerStatusEl = document.getElementById('footer-scorm-status');
+            if (statusEl) statusEl.textContent = 'Estado: ' + statusText;
+            if (footerStatusEl) footerStatusEl.textContent = statusText;
+        }
+
+        function completeTopic(topicId) {
+            completedTopics.add(topicId);
+            updateScormProgress();
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast-notification');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+            
+            if (toastTitle) toastTitle.textContent = title;
+            if (toastMessage) toastMessage.textContent = message;
+            
+            if (toast) {
+                toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+                setTimeout(function() {
+                    toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+                }, 3000);
+            }
+        }
+
+        // ============================================
+        // Navigation & Scroll
+        // ============================================
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // ============================================
+        // Quiz Logic
+        // ============================================
+        const correctAnswers = {
+            q1: 'b',
+            q2: 'b',
+            q3: 'c',
+            q4: 'b'
+        };
+
+        const explanations = {
+            q1: 'Correcto: 1B de parámetros ≈ 0.7-1 GB de RAM en formato GGUF Q4_K_M. Esta es la regla de oro para dimensionar hardware.',
+            q2: 'Correcto: GGUF (GPT-Generated Unified Format) es el formato estándar creado por el equipo de llama.cpp.',
+            q3: 'Correcto: Phi-3-mini (3.8B) fue desarrollado por Microsoft usando destilación con datos sintéticos de alta calidad.',
+            q4: 'Correcto: Ollama expone su servidor local en http://localhost:11434 por defecto.'
+        };
+
+        function evaluateQuiz() {
+            let correctCount = 0;
+            let allAnswered = true;
+
+            for (let q = 1; q <= 4; q++) {
+                const questionName = 'q' + q;
+                const selected = document.querySelector(`input[name="${questionName}"]:checked`);
+                const feedbackEl = document.querySelector(`[data-question="${q}"] .feedback`);
+                
+                if (!selected) {
+                    allAnswered = false;
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '⚠️ Selecciona una respuesta';
+                        feedbackEl.className = 'feedback mt-3 text-sm text-amber-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                    continue;
+                }
+
+                const isCorrect = selected.value === correctAnswers[questionName];
+                
+                if (isCorrect) {
+                    correctCount++;
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '✓ ' + explanations[questionName];
+                        feedbackEl.className = 'feedback mt-3 text-sm text-emerald-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                } else {
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '✗ Respuesta incorrecta. Revisa el contenido del módulo.';
+                        feedbackEl.className = 'feedback mt-3 text-sm text-red-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                }
+            }
+
+            if (!allAnswered) {
+                showToast('Respuestas incompletas', 'Por favor responde todas las preguntas');
+                return;
+            }
+
+            const resultDiv = document.getElementById('quiz-result');
+            const scorePercent = Math.round((correctCount / 4) * 100);
+            
+            if (correctCount === 4) {
+                resultDiv.className = 'mt-8 p-6 rounded-xl text-center bg-emerald-50 border border-emerald-200';
+                resultDiv.innerHTML = `
+                    <div class="text-5xl mb-3">🎉</div>
+                    <h3 class="text-xl font-bold text-emerald-800 mb-2">¡Módulo 1 Completado!</h3>
+                    <p class="text-emerald-700">Obtuviste ${correctCount}/4 respuestas correctas (${scorePercent}%)</p>
+                    <p class="text-sm text-emerald-600 mt-2">Progreso registrado en SCORM</p>
+                `;
+                completeTopic('sco_module1');
+                showToast('¡Felicitaciones!', 'Módulo 1 completado exitosamente');
+                
+                if (window.API) {
+                    window.API.LMSSetValue('cmi.core.lesson_status', 'completed');
+                    window.API.LMSSetValue('cmi.core.score.raw', '100');
+                    window.API.LMSCommit('');
+                }
+            } else {
+                resultDiv.className = 'mt-8 p-6 rounded-xl text-center bg-amber-50 border border-amber-200';
+                resultDiv.innerHTML = `
+                    <div class="text-5xl mb-3">📚</div>
+                    <h3 class="text-xl font-bold text-amber-800 mb-2">Casi lo logras</h3>
+                    <p class="text-amber-700">Obtuviste ${correctCount}/4 respuestas correctas</p>
+                    <p class="text-sm text-amber-600 mt-2">Revisa los temas marcados en rojo e intenta de nuevo</p>
+                `;
+                completeTopic('sco_module1_partial');
+                showToast('Resultado parcial', `${correctCount}/4 correctas. ¡Sigue intentando!`);
+            }
+            
+            resultDiv.classList.remove('hidden');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // ============================================
+        // Intersection Observer for Animations
+        // ============================================
+        (function setupScrollAnimations() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // Mark topic as viewed when it enters viewport
+                        const scoId = entry.target.getAttribute('data-sco-id');
+                        if (scoId && scoId.startsWith('sco_topic')) {
+                            completeTopic(scoId);
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            const fadeElements = document.querySelectorAll('.fade-up');
+            fadeElements.forEach(function(el) {
+                observer.observe(el);
+            });
+        })();
+
+        // ============================================
+        // Initialize
+        // ============================================
+        window.addEventListener('load', function() {
+            if (window.API && !window.API.LMSGetValue('cmi.core.lesson_status')) {
+                window.API.LMSInitialize('');
+            }
+            updateScormStatus('Módulo 1 listo');
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (window.API) {
+                window.API.LMSCommit('');
+            }
+        });
+    </script>
+</body>
+</html>
+

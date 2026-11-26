@@ -60,17 +60,15 @@ namespace BusinessLogic.IA.Providers
             return result?.data?.FirstOrDefault()?.embedding ?? Array.Empty<float>();
         }
 
-        public async Task<string?> GetCompletionAsync(string prompt)
+        public async Task<string?> GetCompletionAsync(string prompt, List<ChatMessage> messages)
         {
             using var client = CreateClient();
             var response = await client.PostAsJsonAsync($"{BaseUrl}/chat/completions", new
             {
                 model    = _completionModel,
-                messages = new[]
-                {
-                    new { role = "user", content = prompt }
-                },
+                messages = messages.Select(m => new { role = m.Role, content = m.Content }),
                 temperature = 0.7,
+                system = prompt,
                 stream      = false
             });
             response.EnsureSuccessStatusCode();

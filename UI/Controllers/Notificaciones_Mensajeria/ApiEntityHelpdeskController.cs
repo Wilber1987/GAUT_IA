@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using WLLM.Hubs.MensajeriaNotificaciones;
 using APPCORE;
 using UI.Helpdesk.ApiControllers;
+using BusinessLogic.Notificaciones_Mensajeria.Gestion_Mensajeria.Model;
 
 namespace API.Controllers
 {
@@ -21,19 +22,26 @@ namespace API.Controllers
 
 		[HttpPost]
 		[AuthController]
-		public List<Tbl_Comments> getTbl_Comments(Tbl_Comments Inst)
+		public List<Tbl_Comments_Conversations> GetTbl_Comments_Conversations(Tbl_Comments_Conversations Inst)
+		{
+			return Tbl_Comments_Conversations.GetConversations(HttpContext.Session.GetString("sessionKey"));
+		}
+
+		[HttpPost]
+		[AuthController]
+		public List<Tbl_Comments> GetTbl_Comments(Tbl_Comments Inst)
 		{
 			return Inst.GetComments();
 		}
 		[HttpPost]
 		[SemaphoreController]
-		public List<Tbl_Comments> getTbl_CommentsWeb(Tbl_Comments Inst)
+		public List<Tbl_Comments> GetTbl_CommentsWeb(Tbl_Comments Inst)
 		{
 			return Inst.GetComments();
 		}
 		[HttpPost]
 		[AuthController]
-		public async Task<object?> saveTbl_Comments(Tbl_Comments Inst)
+		public async Task<object?> SaveTbl_Comments(Tbl_Comments Inst)
 		{
 			//return inst.SaveComment(HttpContext.Session.GetString("sessionKey"));
 
@@ -51,7 +59,7 @@ namespace API.Controllers
 		}
 		[HttpPost]
 		[SemaphoreController]
-		public object? saveTbl_CommentsWeb(Tbl_Comments inst)
+		public object? SaveTbl_CommentsWeb(Tbl_Comments inst)
 		{
 			return inst.SaveComment(HttpContext.Session.GetString("sessionKey"));
 		}
@@ -64,13 +72,13 @@ namespace API.Controllers
 		//Cat_Cargos_Dependencias
 		[HttpPost]
 		[AuthController]
-		public List<Cat_Cargos_Dependencias> getCat_Cargos_Dependencias(Cat_Cargos_Dependencias Inst)
+		public List<Cat_Cargos_Dependencias> GetCat_Cargos_Dependencias(Cat_Cargos_Dependencias Inst)
 		{
 			return Inst.Get<Cat_Cargos_Dependencias>();
 		}
 		[HttpPost]
 		[AuthController]
-		public object? saveCat_Cargos_Dependencias(Cat_Cargos_Dependencias inst)
+		public object? SaveCat_Cargos_Dependencias(Cat_Cargos_Dependencias inst)
 		{
 			return inst.Save();
 		}
@@ -83,13 +91,13 @@ namespace API.Controllers
 		//Cat_Dependencias
 		[HttpPost]
 		[AuthController]
-		public List<Cat_Dependencias> getCat_Dependencias(Cat_Dependencias Inst)
+		public List<Cat_Dependencias> GetCat_Dependencias(Cat_Dependencias Inst)
 		{
 			return Inst.GetDependencias<Cat_Dependencias>();
 		}
 		[HttpPost]
 		[AuthController]
-		public object? saveCat_Dependencias(Cat_Dependencias inst)
+		public object? SaveCat_Dependencias(Cat_Dependencias inst)
 		{
 			return inst.Save();
 		}
@@ -102,13 +110,13 @@ namespace API.Controllers
 		
 		[HttpPost]
 		[AuthController]
-		public List<Tbl_Dependencias_Usuarios> getTbl_Dependencias_Usuarios(Tbl_Dependencias_Usuarios Inst)
+		public List<Tbl_Dependencias_Usuarios> GetTbl_Dependencias_Usuarios(Tbl_Dependencias_Usuarios Inst)
 		{
 			return Inst.Get<Tbl_Dependencias_Usuarios>();
 		}
 		[HttpPost]
 		[AuthController]
-		public object? saveTbl_Dependencias_Usuarios(Tbl_Dependencias_Usuarios inst)
+		public object? SaveTbl_Dependencias_Usuarios(Tbl_Dependencias_Usuarios inst)
 		{
 			return inst.Save();
 		}
@@ -122,13 +130,13 @@ namespace API.Controllers
 		
 		[HttpPost]
 		[AuthController]
-		public List<Cat_Paises> getCat_Paises(Cat_Paises Inst)
+		public List<Cat_Paises> GetCat_Paises(Cat_Paises Inst)
 		{
 			return Inst.Get<Cat_Paises>();
 		}
 		[HttpPost]
 		[AuthController]
-		public object? saveCat_Paises(Cat_Paises inst)
+		public object? SaveCat_Paises(Cat_Paises inst)
 		{
 			return inst.Save();
 		}
@@ -144,13 +152,13 @@ namespace API.Controllers
 		//Tbl_Profile
 		[HttpPost]
 		[AuthController(Permissions.PERFIL_MANAGER)]
-		public List<CAPA_NEGOCIO.MAPEO.Tbl_Profile> getTbl_Profile(CAPA_NEGOCIO.MAPEO.Tbl_Profile Inst)
+		public List<CAPA_NEGOCIO.MAPEO.Tbl_Profile> GetTbl_Profile(CAPA_NEGOCIO.MAPEO.Tbl_Profile Inst)
 		{
 			return Inst.GetProfiles(HttpContext.Session.GetString("sessionKey"));
 		}
 		[HttpPost]
 		[AuthController(Permissions.PERFIL_MANAGER)]
-		public object? saveTbl_Profile(CAPA_NEGOCIO.MAPEO.Tbl_Profile inst)
+		public object? SaveTbl_Profile(CAPA_NEGOCIO.MAPEO.Tbl_Profile inst)
 		{
 			return inst.SaveProfile();
 		}
@@ -164,13 +172,13 @@ namespace API.Controllers
 
 		[HttpPost]
 		[AuthController]
-		public List<Tbl_Servicios> getTbl_Servicios(Tbl_Servicios Inst)
+		public List<Tbl_Servicios> GetTbl_Servicios(Tbl_Servicios Inst)
 		{
 			return Inst.Get<Tbl_Servicios>();
 		}
 		[HttpPost]
 		[AuthController]
-		public object? saveTbl_Servicios(Tbl_Servicios inst)
+		public object? SaveTbl_Servicios(Tbl_Servicios inst)
 		{
 			return inst.Save();
 		}

@@ -1,0 +1,133 @@
+using System.Linq;
+using System.Threading.Tasks;
+using APPCORE;
+using BusinessLogic.ApiChat.AutomaticIA.TrainingModule;
+using BusinessLogic.ApiChat.AutomaticIAOllama.Model;
+using BusinessLogic.IA.Providers;
+using BusinessLogic.IAModule.Utils;
+using CAPA_NEGOCIO;
+using CAPA_NEGOCIO.MAPEO;
+
+namespace BusinessLogic.IA
+{
+    /// <summary>
+    /// Servicio de IA refactorizado.
+    /// Toda la lógica de negocio (RAG, ranking, prompt) vive aquí.
+    /// El proveedor (Ollama, LmStudio, OpenAI, Qwen) se inyecta o se
+    /// resuelve automáticamente desde la configuración.
+    /// </summary>
+    public class IAServiceNew
+    {
+        private readonly IIAProvider _provider;
+
+        // ── Constructor por defecto: lee proveedor desde AppSettings ────────
+        public IAServiceNew() : this(IAProviderFactory.Create()) { }
+
+        // ── Constructor con inyección (tests, cambio dinámico de proveedor) ─
+        public IAServiceNew(IIAProvider provider)
+        {
+            _provider = provider;
+        }
+
+        // ── API pública heredada (mantiene compatibilidad con código existente)
+
+        /// <summary>Genera el vector de embeddings para el texto dado.</summary>
+        public Task<float[]> GetEmbedding(string text)
+            => _provider.GetEmbeddingAsync(text);
+
+        public async  Task<List<(string ChunkText, float[] Vector)>> GenerateEmbeddingsFromPdfAsync(string base64Pdf)
+        {
+            string fullText = PdfTextExtractor.ExtractText(base64Pdf);
+
+            if (string.IsNullOrWhiteSpace(fullText))
+                throw new InvalidOperationException("El PDF no contiene texto extraíble (posiblemente escaneado).");
+
+            var chunks = TextChunker.ChunkText(fullText, chunkSizeWords: 300, overlapWords: 50);
+
+            var results = new List<(string, float[])>();
+            foreach (var chunk in chunks)
+            {
+                var vector = await _provider.GetEmbeddingAsync(chunk);
+                results.Add((chunk, vector));
+            }
+            return results;
+        }
+
+        /// <summary>Genera una respuesta fluida a partir del prompt.</summary>
+        //public Task<string?> GetCompletion(string prompt)
+        //    => _provider.GetCompletionAsync(prompt);
+
+        // ── Lógica RAG ───────────────────────────────────────────────────────
+        public async Task<UserMessage> Chat(UserMessage request)
+        {
+            // A. Vectorizar consulta actual
+            float[] queryVector = await _provider.GetEmbeddingAsync(request.Text);
+
+            // B. Recuperar conocimiento del mismo ServiceTag
+            var localKnowledge = new Tbl_Knowledge_Base().Get<Tbl_Knowledge_Base>(
+            //FilterData.Equal("ServiceTag", request.ServicesIdentification)
+            );
+            //var localKnowledge = new List<Tbl_Knowledge_Base>();
+            // C. Ranking de Similitud (RAG)
+            var contextMatches = localKnowledge
+                .Select(k => new
+                {
+                    k.Content_Text,
+                    Score = VectorHelper.CosineSimilarity(
+                                queryVector,
+                                VectorHelper.ByteArrayToFloatArray(k.Vector_Data))
+                })
+                .Where(x => x.Score > 0.75)
+                .OrderByDescending(x => x.Score)
+                .Take(1000)
+                .ToList();
+
+            /*if (contextMatches.Count == 0)
+            {
+                request.MessageIA = "No he sido capaz de procesar esta pregunta. "
+                    + "Te recomiendo contactar con un agente de servicio al cliente. "
+                    + "Envía '5' o 'Menu' para ver otras opciones.";
+                return request;
+            }*/
+
+            // D. Construir el "system prompt" con el contexto RAG (esto NO va en el historial)
+            string promptContexto = string.Join("\n", contextMatches.Select(x => x.Content_Text));
+
+            if (contextMatches.Count == 0)
+            {
+                request.MessageIA = "No he sido capaz de procesar esta pregunta. "
+                    + "Te recomiendo contactar con un agente de servicio al cliente. "
+                    + "Envía '5' o 'Menu' para ver otras opciones.";
+                return request;
+            }
+
+            string systemPrompt = $@"Eres un asistente de ayuda. Usa este contexto para responder: {promptContexto}";
+
+            // E. Recuperar historial de conversación (ordenado cronológicamente)
+            var historial = new Tbl_Comments().Where<Tbl_Comments>(
+                FilterData.Equal("Token", request.Token)
+            ).OrderBy(h => h.Fecha).ToList();
+
+            var messages = new List<ChatMessage>();
+            foreach (var h in historial)
+            {
+                messages.Add(new ChatMessage { Role = h.NickName != "IA" ? "user" : "assistant", Content = h.Body });
+            }
+
+            // F. Agregar el mensaje actual del usuario
+            messages.Add(new ChatMessage { Role = "user", Content = request.Text });
+
+            // G. Generar respuesta fluida con el proveedor activo (system separado del historial)
+            request.MessageIA = await _provider.GetCompletionAsync(systemPrompt, messages);
+            request.IsWithIaResponse = true;
+
+           
+            return request;
+        }
+    }
+    public class ChatMessage
+    {
+        public string? Role { get; set; } // "user" | "assistant"
+        public string? Content { get; set; }
+    }
+}

@@ -249,13 +249,15 @@ namespace BusinessLogic.SinteticTRainingData
         {
             List<PreRagElement> ragData = new();
 
-            int studentNumber = 600;
+            int studentNumber = 1000;
+
+            int yearIngreso = 2020;
 
             foreach (var carrera in carreras)
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 50; i++)
                 {
-                    string studentId = $"EST-{studentNumber:0000}";
+                    string studentId = $"EST-{studentNumber:0000000},  año de ingreso: {yearIngreso}";
 
                     string nombreCompleto =
                         $"{nombres1[rnd.Next(nombres1.Length)]} " +

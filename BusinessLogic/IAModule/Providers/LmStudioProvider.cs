@@ -33,8 +33,8 @@ namespace BusinessLogic.IA.Providers
 
         public LmStudioProvider()
         {
-            _host            = SystemConfigImpl.AppConfigurationValue(AppConfigurationList.IAServices, "LmStudio_Host")            ?? "http://localhost:1234";
-            _embeddingModel  = SystemConfigImpl.AppConfigurationValue(AppConfigurationList.IAServices, "LmStudio_EmbeddingModel")  ?? "nomic-embed-text-v1.5";
+            _host = SystemConfigImpl.AppConfigurationValue(AppConfigurationList.IAServices, "LmStudio_Host") ?? "http://localhost:1234";
+            _embeddingModel = SystemConfigImpl.AppConfigurationValue(AppConfigurationList.IAServices, "LmStudio_EmbeddingModel") ?? "nomic-embed-text-v1.5";
             _completionModel = SystemConfigImpl.AppConfigurationValue(AppConfigurationList.IAServices, "LmStudio_CompletionModel") ?? "local-model";
         }
 
@@ -53,19 +53,34 @@ namespace BusinessLogic.IA.Providers
         }
 
         // ── Completion (/v1/chat/completions — estándar OpenAI) ─────────────
-        public async Task<string?> GetCompletionAsync(string prompt)
+        public async Task<string?> GetCompletionAsync(string prompt, List<ChatMessage> messages)
         {
             using var client = CreateClient();
-            var response = await client.PostAsJsonAsync($"{_host}/v1/chat/completions", new
+
+            var payload = new
             {
-                model    = _completionModel,
+                model = _completionModel,
+                //max_tokens = 1000,
+                temperature = 0.7,
+                stream = false,
+                system = prompt,
+                messages = messages.Select(m => new { role = m.Role, content = m.Content })
+            };
+
+
+            var response = await client.PostAsJsonAsync($"{_host}/v1/chat/completions", payload
+            /* new
+            {
+                model = _completionModel,
                 messages = new[]
                 {
                     new { role = "user", content = prompt }
                 },
                 temperature = 0.7,
-                stream      = false
-            });
+                stream = false
+            }*/);
+
+            
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<OpenAIChatResponse>();
             return result?.choices?.FirstOrDefault()?.message?.content;

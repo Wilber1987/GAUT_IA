@@ -2,8 +2,13 @@
 @using APPCORE.Security
 @using DataBaseModel
 @{
-    string identify = Context.Session.GetString("sessionKey");
-    var SystemConfig = Config.SystemConfig();
+    string identify = Context.Session.GetString("sessionKey");   
+    if (identify == null)
+    {
+        Context.Response.Redirect("/Security/Login");
+    }
+    CAPA_NEGOCIO.SystemConfig.SystemConfigImpl? SystemConfig = Config.SystemConfig();
+
 }
 <!DOCTYPE html>
 <html lang="en">

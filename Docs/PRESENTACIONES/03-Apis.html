@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Módulo 2: Comunicación HTTPS Pura en .NET - IA Open Source en .NET">
+    <meta name="scorm-version" content="1.2">
+    <meta name="scorm-title" content="IA Open Source en .NET - Módulo 2: Comunicación HTTPS Pura en .NET">
+    <title>Módulo 2 | Comunicación HTTPS Pura en .NET - IA Open Source .NET</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/index.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'Courier New', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+        }
+        
+        .scorm-progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #6366f1;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .pulse-dot {
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .terminal {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            color: #c9d1d9;
+            overflow: hidden;
+        }
+        .terminal-header {
+            background: #161b22;
+            padding: 10px 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .terminal-body {
+            padding: 16px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .code-keyword { color: #ff7b72; }
+        .code-type { color: #79c0ff; }
+        .code-string { color: #a5d6ff; }
+        .code-comment { color: #8b949e; font-style: italic; }
+        .code-method { color: #d2a8ff; }
+        .code-number { color: #ffa657; }
+        .code-variable { color: #ffa657; }
+
+        .endpoint-card {
+            transition: all 0.3s ease;
+        }
+        .endpoint-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.4);
+        }
+
+        .tab-button.active {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .code-line {
+            counter-increment: line;
+        }
+        .code-line::before {
+            content: counter(line);
+            display: inline-block;
+            width: 2em;
+            margin-right: 1em;
+            text-align: right;
+            color: #484f58;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- SCORM Progress Tracker -->
+    <div id="scorm-tracker" class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+                <span>SCORM 1.2 · Módulo 2</span>
+                <span class="hidden sm:inline text-slate-400">|</span>
+                <span class="hidden sm:inline" id="scorm-status-text">Estado: Inicializando...</span>
+            </div>
+            <div class="flex items-center gap-3 flex-1 max-w-md">
+                <div class="text-xs font-medium text-slate-600 whitespace-nowrap">Progreso:</div>
+                <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="scorm-progress-fill" class="scorm-progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-700 rounded-full" style="width: 0%"></div>
+                </div>
+                <span id="scorm-progress-percent" class="text-xs font-bold text-brand-600 w-10 text-right">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-10 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">M2</div>
+                <div class="flex flex-col">
+                    <span class="text-xs text-slate-500 leading-tight">Comunicación HTTPS Encuentro 1 · Horas 3-4</span>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+                <a href="#anatomia" class="nav-link hover:text-brand-600">Anatomía APIs</a>
+                <a href="#httpclient" class="nav-link hover:text-brand-600">HttpClient</a>
+                <a href="#serializacion" class="nav-link hover:text-brand-600">Serialización</a>
+                <a href="#streaming" class="nav-link hover:text-brand-600">Streaming</a>
+            </div>
+            <button onclick="scrollToSection('evaluacion')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors">
+                Evaluación
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-gradient pt-32 pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-brand-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-up">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-medium mb-6">
+                        <span class="px-2 py-0.5 rounded bg-brand-500 text-white font-bold">MÓDULO 2</span>
+                        <span>Encuentro 1 · Horas 3-4</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                        Comunicación HTTPS
+                    </h1>
+                    <p class="text-lg text-slate-300 mb-8 leading-relaxed">
+                        Domina la integración directa con servidores locales de IA usando únicamente <code class="px-1.5 py-0.5 rounded bg-white/10 text-brand-200 text-sm font-mono">System.Net.Http</code> y <code class="px-1.5 py-0.5 rounded bg-white/10 text-brand-200 text-sm font-mono">System.Text.Json</code>. Sin wrappers, sin dependencias ocultas.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                            <div class="text-2xl font-bold text-white">4</div>
+                            <div class="text-xs text-slate-400">Temas técnicos</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                            <div class="text-2xl font-bold text-white">2h</div>
+                            <div class="text-xs text-slate-400">Duración</div>
+                        </div>
+                    </div>
+                    <button onclick="scrollToSection('anatomia')" class="px-6 py-3 bg-white text-brand-700 font-semibold rounded-lg hover:bg-slate-100 transition-colors shadow-lg">
+                        Comenzar Módulo →
+                    </button>
+                </div>
+                <div class="fade-up hidden lg:block">
+                    <img src="https://image.qwenlm.ai/public_source/a87c8742-10ec-43bf-ae16-94e4d7ce60b6/12e319e84-943b-4310-bfad-fb14b60f2895.png" 
+                         alt="Comunicación HTTPS Pura entre .NET y servidor IA local" 
+                         class="rounded-2xl shadow-2xl border border-white/10 w-full">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Topic 1: Anatomía de APIs -->
+    <section id="anatomia" class="py-20 bg-white" data-sco-id="sco_topic1">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 1</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800">Anatomía de las APIs Locales</h2>
+                <p class="text-slate-600 mt-4 max-w-2xl mx-auto">Antes de escribir código, comprendamos los endpoints HTTP que exponen los servidores locales y la estructura de sus payloads JSON.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-12">
+                <!-- Ollama Endpoints -->
+                <div class="fade-up endpoint-card p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-brand-50 border border-brand-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold">O</div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">Ollama API</h3>
+                            <code class="text-xs text-brand-600">http://localhost:11434</code>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="p-3 rounded-lg bg-white border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <code class="text-xs font-bold text-emerald-600">POST /api/generate</code>
+                                <span class="text-xs text-slate-500">Generación cruda</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Envía un prompt y recibe la respuesta token por token.</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-white border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <code class="text-xs font-bold text-emerald-600">POST /api/chat</code>
+                                <span class="text-xs text-slate-500">Chat conversacional</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Array de mensajes con roles (system, user, assistant).</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-white border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <code class="text-xs font-bold text-emerald-600">POST /api/embeddings</code>
+                                <span class="text-xs text-slate-500">Vectorización</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Convierte texto en vectores numéricos para RAG.</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-white border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <code class="text-xs font-bold text-emerald-600">GET /api/tags</code>
+                                <span class="text-xs text-slate-500">Listar modelos</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Obtiene los modelos descargados localmente.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LM Studio Endpoints -->
+                <div class="fade-up endpoint-card p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-purple-50 border border-purple-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold">LM</div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">LM Studio (OpenAI Compat)</h3>
+                            <code class="text-xs text-purple-600">http://localhost:1234/v1</code>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="p-3 rounded-lg bg-white border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <code class="text-xs font-bold text-emerald-600">POST /v1/chat/completions</code>
+                                <span class="text-xs text-slate-500">Chat OpenAI</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Formato idéntico al de OpenAI. Fácil migración.</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-white border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <code class="text-xs font-bold text-emerald-600">POST /v1/completions</code>
+                                <span class="text-xs text-slate-500">Completado legacy</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Formato antiguo de completado de texto.</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-white border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <code class="text-xs font-bold text-emerald-600">POST /v1/embeddings</code>
+                                <span class="text-xs text-slate-500">Embeddings</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Vectorización compatible con OpenAI.</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-white border border-slate-200">
+                            <div class="flex items-center justify-between mb-1">
+                                <code class="text-xs font-bold text-emerald-600">GET /v1/models</code>
+                                <span class="text-xs text-slate-500">Listar modelos</span>
+                            </div>
+                            <p class="text-xs text-slate-600">Lista los modelos cargados en el servidor.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payload Example -->
+            <div class="fade-up">
+                <h3 class="font-bold text-2xl text-slate-800 mb-6 text-center">Estructura del Payload JSON</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot bg-red-500"></span>
+                            <span class="terminal-dot bg-yellow-500"></span>
+                            <span class="terminal-dot bg-green-500"></span>
+                            <span class="text-xs text-slate-400 ml-2">Ollama /api/chat - Request</span>
+                        </div>
+                        <div class="terminal-body">
+<pre class="text-sm"><span class="code-keyword">{</span>
+  <span class="code-string">"model"</span><span class="code-keyword">:</span> <span class="code-string">"llama3.2"</span><span class="code-keyword">,</span>
+  <span class="code-string">"messages"</span><span class="code-keyword">:</span> <span class="code-keyword">[</span>
+    <span class="code-keyword">{</span>
+      <span class="code-string">"role"</span><span class="code-keyword">:</span> <span class="code-string">"system"</span><span class="code-keyword">,</span>
+      <span class="code-string">"content"</span><span class="code-keyword">:</span> <span class="code-string">"Eres un asistente útil."</span>
+    <span class="code-keyword">},</span>
+    <span class="code-keyword">{</span>
+      <span class="code-string">"role"</span><span class="code-keyword">:</span> <span class="code-string">"user"</span><span class="code-keyword">,</span>
+      <span class="code-string">"content"</span><span class="code-keyword">:</span> <span class="code-string">"¿Qué es .NET?"</span>
+    <span class="code-keyword">}</span>
+  <span class="code-keyword">],</span>
+  <span class="code-string">"stream"</span><span class="code-keyword">:</span> <span class="code-keyword">false</span><span class="code-keyword">,</span>
+  <span class="code-string">"options"</span><span class="code-keyword">:</span> <span class="code-keyword">{</span>
+    <span class="code-string">"temperature"</span><span class="code-keyword">:</span> <span class="code-number">0.7</span>
+  <span class="code-keyword">}</span>
+<span class="code-keyword">}</span></pre>
+                        </div>
+                    </div>
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot bg-red-500"></span>
+                            <span class="terminal-dot bg-yellow-500"></span>
+                            <span class="terminal-dot bg-green-500"></span>
+                            <span class="text-xs text-slate-400 ml-2">Ollama /api/chat - Response</span>
+                        </div>
+                        <div class="terminal-body">
+<pre class="text-sm"><span class="code-keyword">{</span>
+  <span class="code-string">"model"</span><span class="code-keyword">:</span> <span class="code-string">"llama3.2"</span><span class="code-keyword">,</span>
+  <span class="code-string">"created_at"</span><span class="code-keyword">:</span> <span class="code-string">"2026-06-16T..."</span><span class="code-keyword">,</span>
+  <span class="code-string">"message"</span><span class="code-keyword">:</span> <span class="code-keyword">{</span>
+    <span class="code-string">"role"</span><span class="code-keyword">:</span> <span class="code-string">"assistant"</span><span class="code-keyword">,</span>
+    <span class="code-string">"content"</span><span class="code-keyword">:</span> <span class="code-string">".NET es un framework..."</span>
+  <span class="code-keyword">},</span>
+  <span class="code-string">"done"</span><span class="code-keyword">:</span> <span class="code-keyword">true</span><span class="code-keyword">,</span>
+  <span class="code-string">"total_duration"</span><span class="code-keyword">:</span> <span class="code-number">1234567890</span><span class="code-keyword">,</span>
+  <span class="code-string">"eval_count"</span><span class="code-keyword">:</span> <span class="code-number">42</span>
+<span class="code-keyword">}</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 2: HttpClient -->
+    <section id="httpclient" class="py-20 bg-slate-50" data-sco-id="sco_topic2">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 2</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800">HttpClient en .NET</h2>
+                <p class="text-slate-600 mt-4 max-w-2xl mx-auto">La clase fundamental para comunicación HTTP. Aprender a usarla correctamente es la diferencia entre una aplicación robusta y una que falla en producción.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-6 mb-12">
+                <div class="fade-up p-6 rounded-2xl bg-white border border-slate-200">
+                    <div class="w-12 h-12 rounded-lg bg-red-100 text-red-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">El Problema: Socket Exhaustion</h3>
+                    <p class="text-sm text-slate-600">
+                        Instanciar <code class="text-xs bg-slate-100 px-1 rounded">new HttpClient()</code> en cada petición agota los sockets del sistema operativo. Cada instancia mantiene una conexión TCP abierta durante <strong>4 minutos</strong> después de ser desechada.
+                    </p>
+                </div>
+
+                <div class="fade-up p-6 rounded-2xl bg-white border border-slate-200">
+                    <div class="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">La Solución: IHttpClientFactory</h3>
+                    <p class="text-sm text-slate-600">
+                        Patrón oficial de Microsoft. Gestiona un pool de conexiones, recicla sockets y permite configuración centralizada de timeouts, headers y políticas de reintento.
+                    </p>
+                </div>
+
+                <div class="fade-up p-6 rounded-2xl bg-white border border-slate-200">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">Configuración de Timeouts</h3>
+                    <p class="text-sm text-slate-600">
+                        Los modelos locales pueden tardar varios segundos en responder. Configurar timeouts apropiados (30-120s) evita fallos prematuros sin bloquear la aplicación indefinidamente.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Code Example: IHttpClientFactory -->
+            <div class="fade-up">
+                <h3 class="font-bold text-2xl text-slate-800 mb-6 text-center">Patrón Recomendado en .NET</h3>
+                <div class="terminal max-w-4xl mx-auto">
+                    <div class="terminal-header">
+                        <span class="terminal-dot bg-red-500"></span>
+                        <span class="terminal-dot bg-yellow-500"></span>
+                        <span class="terminal-dot bg-green-500"></span>
+                        <span class="text-xs text-slate-400 ml-2">Program.cs - Configuración de IHttpClientFactory</span>
+                    </div>
+                    <div class="terminal-body">
+<pre class="text-sm"><span class="code-comment">// 1. Registrar el cliente HTTP en el contenedor de DI</span>
+<span class="code-variable">builder</span>.<span class="code-method">Services</span>.<span class="code-method">AddHttpClient</span>&lt;<span class="code-type">IAiService</span>, <span class="code-type">AiService</span>&gt;(<span class="code-string">"OllamaClient"</span>, <span class="code-variable">client</span> =>
+<span class="code-keyword">{</span>
+    <span class="code-variable">client</span>.<span class="code-method">BaseAddress</span> = <span class="code-keyword">new</span> <span class="code-type">Uri</span>(<span class="code-string">"http://localhost:11434"</span>);
+    <span class="code-variable">client</span>.<span class="code-method">Timeout</span> = <span class="code-type">TimeSpan</span>.<span class="code-method">FromSeconds</span>(<span class="code-number">120</span>); <span class="code-comment">// Timeouts generosos para inferencia local</span>
+    <span class="code-variable">client</span>.<span class="code-method">DefaultRequestHeaders</span>.<span class="code-method">Accept</span>.<span class="code-method">Add</span>(
+        <span class="code-keyword">new</span> <span class="code-type">MediaTypeWithQualityHeaderValue</span>(<span class="code-string">"application/json"</span>));
+<span class="code-keyword">});</span>
+
+<span class="code-comment">// 2. Implementación del servicio</span>
+<span class="code-keyword">public class</span> <span class="code-type">AiService</span> : <span class="code-type">IAiService</span>
+<span class="code-keyword">{</span>
+    <span class="code-keyword">private readonly</span> <span class="code-type">HttpClient</span> <span class="code-variable">_client</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">AiService</span>(<span class="code-type">HttpClient</span> <span class="code-variable">client</span>)
+    <span class="code-keyword">{</span>
+        <span class="code-variable">_client</span> = <span class="code-variable">client</span>;
+    <span class="code-keyword">}</span>
+
+    <span class="code-keyword">public async</span> <span class="code-type">Task</span>&lt;<span class="code-type">ChatResponse</span>&gt; <span class="code-method">SendChatAsync</span>(<span class="code-type">ChatRequest</span> <span class="code-variable">request</span>)
+    <span class="code-keyword">{</span>
+        <span class="code-keyword">var</span> <span class="code-variable">response</span> = <span class="code-keyword">await</span> <span class="code-variable">_client</span>.<span class="code-method">PostAsJsonAsync</span>(<span class="code-string">"/api/chat"</span>, <span class="code-variable">request</span>);
+        <span class="code-variable">response</span>.<span class="code-method">EnsureSuccessStatusCode</span>();
+        <span class="code-keyword">return await</span> <span class="code-variable">response</span>.<span class="code-method">Content</span>.<span class="code-method">ReadFromJsonAsync</span>&lt;<span class="code-type">ChatResponse</span>&gt;();
+    <span class="code-keyword">}</span>
+<span class="code-keyword">}</span></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 3: Serialización -->
+    <section id="serializacion" class="py-20 bg-white" data-sco-id="sco_topic3">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid lg:grid-cols-2 gap-12 items-start">
+                <div class="fade-up order-2 lg:order-1">
+                    <div class="sticky top-32">
+                        <span class="inline-block px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">TEMA 3</span>
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Serialización con System.Text.Json</h2>
+                        <p class="text-slate-600 leading-relaxed mb-6">
+                            El serializador nativo de .NET. Rápido, seguro y con soporte para <code class="px-1.5 py-0.5 rounded bg-slate-100 text-brand-600 text-sm font-mono">records</code> inmutables.
+                        </p>
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-xl bg-brand-50 border border-brand-200">
+                                <h4 class="font-semibold text-brand-900 mb-2">✓ Tipado Fuerte</h4>
+                                <p class="text-sm text-brand-800">Records inmutables que garantizan la estructura del payload en tiempo de compilación.</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-brand-50 border border-brand-200">
+                                <h4 class="font-semibold text-brand-900 mb-2">✓ Naming Policy</h4>
+                                <p class="text-sm text-brand-800">Convierte automáticamente <code class="text-xs">PropertyName</code> a <code class="text-xs">property_name</code> (camelCase/snake_case).</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-brand-50 border border-brand-200">
+                                <h4 class="font-semibold text-brand-900 mb-2">✓ Utf8JsonReader/Writer</h4>
+                                <p class="text-sm text-brand-800">API de bajo nivel para streaming de JSON sin cargar todo el documento en memoria.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fade-up order-1 lg:order-2 space-y-6">
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot bg-red-500"></span>
+                            <span class="terminal-dot bg-yellow-500"></span>
+                            <span class="terminal-dot bg-green-500"></span>
+                            <span class="text-xs text-slate-400 ml-2">Models.cs - Records tipados</span>
+                        </div>
+                        <div class="terminal-body">
+<pre class="text-sm"><span class="code-comment">// Records inmutables para el payload</span>
+<span class="code-keyword">public record</span> <span class="code-type">ChatMessage</span>(
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"role"</span>)] <span class="code-type">string</span> <span class="code-variable">Role</span>,
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"content"</span>)] <span class="code-type">string</span> <span class="code-variable">Content</span>);
+
+<span class="code-keyword">public record</span> <span class="code-type">ChatRequest</span>(
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"model"</span>)] <span class="code-type">string</span> <span class="code-variable">Model</span>,
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"messages"</span>)] <span class="code-type">List</span>&lt;<span class="code-type">ChatMessage</span>&gt; <span class="code-variable">Messages</span>,
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"stream"</span>)] <span class="code-type">bool</span> <span class="code-variable">Stream</span> = <span class="code-keyword">false</span>);
+
+<span class="code-keyword">public record</span> <span class="code-type">ChatResponse</span>(
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"model"</span>)] <span class="code-type">string</span> <span class="code-variable">Model</span>,
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"message"</span>)] <span class="code-type">ChatMessage</span> <span class="code-variable">Message</span>,
+    [<span class="code-type">JsonPropertyName</span>(<span class="code-string">"done"</span>)] <span class="code-type">bool</span> <span class="code-variable">Done</span>);</pre>
+                        </div>
+                    </div>
+
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot bg-red-500"></span>
+                            <span class="terminal-dot bg-yellow-500"></span>
+                            <span class="terminal-dot bg-green-500"></span>
+                            <span class="text-xs text-slate-400 ml-2">Uso de JsonSerializer</span>
+                        </div>
+                        <div class="terminal-body">
+<pre class="text-sm"><span class="code-keyword">var</span> <span class="code-variable">options</span> = <span class="code-keyword">new</span> <span class="code-type">JsonSerializerOptions</span>
+<span class="code-keyword">{</span>
+    <span class="code-variable">PropertyNamingPolicy</span> = <span class="code-type">JsonNamingPolicy</span>.<span class="code-variable">SnakeCaseLower</span>,
+    <span class="code-variable">WriteIndented</span> = <span class="code-keyword">false</span>,
+    <span class="code-variable">DefaultIgnoreCondition</span> = 
+        <span class="code-type">JsonIgnoreCondition</span>.<span class="code-variable">WhenWritingNull</span>
+<span class="code-keyword">};</span>
+
+<span class="code-comment">// Serializar</span>
+<span class="code-keyword">var</span> <span class="code-variable">json</span> = <span class="code-type">JsonSerializer</span>.<span class="code-method">Serialize</span>(
+    <span class="code-variable">request</span>, <span class="code-variable">options</span>);
+
+<span class="code-comment">// Deserializar desde stream (eficiente)</span>
+<span class="code-keyword">using var</span> <span class="code-variable">stream</span> = <span class="code-keyword">await</span> <span class="code-variable">response</span>.<span class="code-method">Content</span>
+    .<span class="code-method">ReadAsStreamAsync</span>();
+
+<span class="code-keyword">var</span> <span class="code-variable">result</span> = <span class="code-keyword">await</span> <span class="code-type">JsonSerializer</span>
+    .<span class="code-method">DeserializeAsync</span>&lt;<span class="code-type">ChatResponse</span>&gt;(
+        <span class="code-variable">stream</span>, <span class="code-variable">options</span>);</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic 4: Streaming -->
+    <section id="streaming" class="py-20 bg-slate-900 text-white" data-sco-id="sco_topic4">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 text-xs font-bold mb-4">TEMA 4</span>
+                <h2 class="text-3xl md:text-4xl font-bold">Streaming en Tiempo Real</h2>
+                <p class="text-slate-400 mt-4 max-w-2xl mx-auto">Los LLMs generan texto token por token. El streaming permite mostrar la respuesta a medida que se genera, mejorando drásticamente la experiencia de usuario.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8 mb-12">
+                <div class="fade-up p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+                    <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        ¿Cómo funciona el streaming?
+                    </h3>
+                    <ol class="space-y-3 text-sm text-slate-300">
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+                            <span>El cliente envía <code class="text-brand-300">"stream": true</code> en el payload JSON.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+                            <span>El servidor responde con <code class="text-brand-300">Transfer-Encoding: chunked</code> y mantiene la conexión abierta.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+                            <span>Cada chunk es un objeto JSON independiente con un token o fragmento de texto.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+                            <span>El último chunk contiene <code class="text-brand-300">"done": true</code> y metadatos de la generación.</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="fade-up p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+                    <h3 class="font-bold text-xl mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                        Claves del Streaming en .NET
+                    </h3>
+                    <ul class="space-y-3 text-sm text-slate-300">
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400 mt-1">✓</span>
+                            <span><code class="text-brand-300">GetStreamAsync()</code> - Obtiene el stream HTTP sin bufferizar.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400 mt-1">✓</span>
+                            <span><code class="text-brand-300">StreamReader</code> - Lectura línea por línea del stream.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400 mt-1">✓</span>
+                            <span><code class="text-brand-300">IAsyncEnumerable&lt;T&gt;</code> - Patrón moderno para streams tipados.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-emerald-400 mt-1">✓</span>
+                            <span><code class="text-brand-300">JsonSerializer.DeserializeAsyncEnumerable</code> - Deserialización incremental.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Streaming Code Example -->
+            <div class="fade-up">
+                <h3 class="font-bold text-2xl mb-6 text-center">Implementación Completa de Streaming</h3>
+                <div class="terminal max-w-5xl mx-auto">
+                    <div class="terminal-header">
+                        <span class="terminal-dot bg-red-500"></span>
+                        <span class="terminal-dot bg-yellow-500"></span>
+                        <span class="terminal-dot bg-green-500"></span>
+                        <span class="text-xs text-slate-400 ml-2">AiService.cs - Streaming con IAsyncEnumerable</span>
+                    </div>
+                    <div class="terminal-body">
+<pre class="text-sm"><span class="code-keyword">public async</span> <span class="code-type">IAsyncEnumerable</span>&lt;<span class="code-type">string</span>&gt; <span class="code-method">StreamChatAsync</span>(
+    <span class="code-type">ChatRequest</span> <span class="code-variable">request</span>,
+    [<span class="code-type">EnumeratorCancellation</span>] <span class="code-type">CancellationToken</span> <span class="code-variable">cancellationToken</span> = <span class="code-keyword">default</span>)
+<span class="code-keyword">{</span>
+    <span class="code-comment">// Configurar request para streaming</span>
+    <span class="code-variable">request</span> = <span class="code-variable">request</span> <span class="code-keyword">with</span> <span class="code-keyword">{</span> <span class="code-variable">Stream</span> = <span class="code-keyword">true</span> <span class="code-keyword">}</span>;
+
+    <span class="code-comment">// Obtener el stream HTTP sin bufferizar</span>
+    <span class="code-keyword">using var</span> <span class="code-variable">response</span> = <span class="code-keyword">await</span> <span class="code-variable">_client</span>.<span class="code-method">PostAsJsonAsync</span>(
+        <span class="code-string">"/api/chat"</span>, <span class="code-variable">request</span>, <span class="code-variable">cancellationToken</span>);
+    
+    <span class="code-variable">response</span>.<span class="code-method">EnsureSuccessStatusCode</span>();
+
+    <span class="code-comment">// Leer el stream línea por línea</span>
+    <span class="code-keyword">using var</span> <span class="code-variable">stream</span> = <span class="code-keyword">await</span> <span class="code-variable">response</span>.<span class="code-method">Content</span>.<span class="code-method">ReadAsStreamAsync</span>(<span class="code-variable">cancellationToken</span>);
+    <span class="code-keyword">using var</span> <span class="code-variable">reader</span> = <span class="code-keyword">new</span> <span class="code-type">StreamReader</span>(<span class="code-variable">stream</span>);
+
+    <span class="code-type">string</span>? <span class="code-variable">line</span>;
+    <span class="code-keyword">while</span> ((<span class="code-variable">line</span> = <span class="code-keyword">await</span> <span class="code-variable">reader</span>.<span class="code-method">ReadLineAsync</span>()) != <span class="code-keyword">null</span>)
+    <span class="code-keyword">{</span>
+        <span class="code-keyword">if</span> (<span class="code-type">string</span>.<span class="code-method">IsNullOrWhiteSpace</span>(<span class="code-variable">line</span>)) <span class="code-keyword">continue</span>;
+
+        <span class="code-comment">// Deserializar cada chunk JSON</span>
+        <span class="code-keyword">var</span> <span class="code-variable">chunk</span> = <span class="code-type">JsonSerializer</span>.<span class="code-method">Deserialize</span>&lt;<span class="code-type">ChatResponse</span>&gt;(<span class="code-variable">line</span>);
+        
+        <span class="code-keyword">if</span> (<span class="code-variable">chunk</span>?.<span class="code-variable">Message</span>?.<span class="code-variable">Content</span> != <span class="code-keyword">null</span>)
+        <span class="code-keyword">{</span>
+            <span class="code-keyword">yield return</span> <span class="code-variable">chunk</span>.<span class="code-variable">Message</span>.<span class="code-variable">Content</span>;
+        <span class="code-keyword">}</span>
+
+        <span class="code-keyword">if</span> (<span class="code-variable">chunk</span>?.<span class="code-variable">Done</span> == <span class="code-keyword">true</span>) <span class="code-keyword">yield break</span>;
+    <span class="code-keyword">}</span>
+<span class="code-keyword">}</span>
+
+<span class="code-comment">// Consumo en la aplicación</span>
+<span class="code-keyword">await foreach</span> (<span class="code-keyword">var</span> <span class="code-variable">token</span> <span class="code-keyword">in</span> <span class="code-variable">aiService</span>.<span class="code-method">StreamChatAsync</span>(<span class="code-variable">request</span>))
+<span class="code-keyword">{</span>
+    <span class="code-type">Console</span>.<span class="code-method">Write</span>(<span class="code-variable">token</span>); <span class="code-comment">// Renderizado en tiempo real</span>
+<span class="code-keyword">}</span></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evaluación / Quiz Section -->
+    <section id="evaluacion" class="py-20 bg-white" data-sco-id="sco_quiz">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="text-center mb-12 fade-up">
+                <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold mb-4">EVALUACIÓN DEL MÓDULO</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800">Verifica tu comprensión</h2>
+                <p class="text-slate-600 mt-4">Responde correctamente las 4 preguntas para completar el Módulo 2.</p>
+            </div>
+
+            <div class="space-y-6 fade-up" id="quiz-container">
+                <!-- Pregunta 1 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="1">
+                    <h3 class="font-semibold text-slate-800 mb-4">1. ¿Qué patrón de .NET se recomienda para evitar Socket Exhaustion al usar HttpClient?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">Instanciar <code class="text-xs bg-slate-100 px-1 rounded">new HttpClient()</code> en cada método</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">Usar <code class="text-xs bg-slate-100 px-1 rounded">IHttpClientFactory</code> con inyección de dependencias</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q1" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700">Declarar HttpClient como variable local estática</span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 2 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="2">
+                    <h3 class="font-semibold text-slate-800 mb-4">2. ¿Qué puerto usa Ollama por defecto para su API REST?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">localhost:8080</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">localhost:11434</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q2" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">localhost:1234</code></span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 3 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="3">
+                    <h3 class="font-semibold text-slate-800 mb-4">3. ¿Qué método de HttpClient se usa para obtener un stream HTTP sin bufferizar?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">GetStringAsync()</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">GetStreamAsync()</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q3" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">GetByteArrayAsync()</code></span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <!-- Pregunta 4 -->
+                <div class="p-6 rounded-xl border border-slate-200 bg-slate-50" data-question="4">
+                    <h3 class="font-semibold text-slate-800 mb-4">4. ¿Qué parámetro JSON debe enviarse como <code class="text-xs bg-slate-100 px-1 rounded">true</code> para activar el streaming en Ollama?</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="a" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">"streaming": true</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="b" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">"realtime": true</code></span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-brand-300 transition-colors">
+                            <input type="radio" name="q4" value="c" class="w-4 h-4 text-brand-600">
+                            <span class="text-sm text-slate-700"><code class="text-xs bg-slate-100 px-1 rounded">"stream": true</code></span>
+                        </label>
+                    </div>
+                    <div class="feedback mt-3 text-sm hidden"></div>
+                </div>
+
+                <button onclick="evaluateQuiz()" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-colors shadow-lg">
+                    Enviar Respuestas
+                </button>
+            </div>
+
+            <div id="quiz-result" class="hidden mt-8 p-6 rounded-xl text-center"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">M2</div>
+                        <span class="font-bold text-white">Módulo 2</span>
+                    </div>
+                    <p class="text-sm">Comunicación HTTPS Pura en .NET para integración con servidores locales de IA.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Temas Cubiertos</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>Anatomía de APIs</li>
+                        <li>HttpClient & IHttpClientFactory</li>
+                        <li>System.Text.Json</li>
+                        <li>Streaming en tiempo real</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Siguiente Módulo</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="text-brand-400">Módulo 3 →</li>
+                        <li>RAG y Procesamiento Algorítmico</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">SCORM</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>Versión: 1.2</li>
+                        <li>SCO ID: sco_module2</li>
+                        <li>Estado: <span id="footer-scorm-status" class="text-emerald-400">Activo</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">© 2026 IA Open Source .NET Training · Módulo 2 de 4</p>
+                <p class="text-xs">Compatible con SCORM 1.2 / 2004 · LMS Ready</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-800 text-white px-6 py-4 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div>
+                <div class="font-semibold text-sm" id="toast-title">Éxito</div>
+                <div class="text-xs text-slate-400" id="toast-message">Operación completada</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SCORM 1.2 Mock API
+        // ============================================
+        (function initializeScormAPI() {
+            const scormData = {
+                'cmi.core.lesson_status': 'not attempted',
+                'cmi.core.score.raw': '0',
+                'cmi.core.score.max': '100',
+                'cmi.core.entry': '',
+                'cmi.core.exit': '',
+                'cmi.core.session_time': '00:00:00',
+                'cmi.suspend_data': '',
+                'cmi.core.lesson_location': 'sco_module2',
+                'initialized': false
+            };
+
+            const scormAPI = {
+                LMSInitialize: function(param) {
+                    scormData.initialized = true;
+                    scormData['cmi.core.lesson_status'] = 'incomplete';
+                    updateScormStatus('Módulo 2 iniciado');
+                    console.log('[SCORM] LMSInitialize called');
+                    return 'true';
+                },
+                LMSFinish: function(param) {
+                    scormData['cmi.core.lesson_status'] = 'completed';
+                    scormData['cmi.core.exit'] = 'logout';
+                    updateScormStatus('Módulo 2 completado');
+                    console.log('[SCORM] LMSFinish called');
+                    return 'true';
+                },
+                LMSGetValue: function(element) {
+                    const value = scormData[element] !== undefined ? scormData[element] : '';
+                    console.log(`[SCORM] LMSGetValue(${element}) = ${value}`);
+                    return value;
+                },
+                LMSSetValue: function(element, value) {
+                    scormData[element] = value;
+                    console.log(`[SCORM] LMSSetValue(${element}, ${value})`);
+                    return 'true';
+                },
+                LMSCommit: function(param) {
+                    console.log('[SCORM] LMSCommit');
+                    return 'true';
+                },
+                LMSGetLastError: function() { return '0'; },
+                LMSGetErrorString: function(code) { return 'No error'; },
+                LMSGetDiagnostic: function(code) { return ''; }
+            };
+
+            window.API = scormAPI;
+            window.API_1484_11 = scormAPI;
+            
+            setTimeout(function() {
+                if (!window.parent.API && !window.top.API) {
+                    window.API = scormAPI;
+                    scormAPI.LMSInitialize('');
+                }
+            }, 100);
+        })();
+
+        // ============================================
+        // SCORM Progress Management
+        // ============================================
+        const totalTopics = 4;
+        const completedTopics = new Set();
+
+        function updateScormProgress() {
+            const progressPercent = Math.round((completedTopics.size / totalTopics) * 100);
+            const progressFill = document.getElementById('scorm-progress-fill');
+            const progressPercentEl = document.getElementById('scorm-progress-percent');
+            
+            if (progressFill) progressFill.style.width = progressPercent + '%';
+            if (progressPercentEl) progressPercentEl.textContent = progressPercent + '%';
+
+            if (window.API) {
+                window.API.LMSSetValue('cmi.core.score.raw', progressPercent.toString());
+                window.API.LMSCommit('');
+            }
+
+            if (progressPercent === 100) {
+                updateScormStatus('Módulo 2 completado al 100%');
+                if (window.API) {
+                    window.API.LMSSetValue('cmi.core.lesson_status', 'completed');
+                    window.API.LMSCommit('');
+                }
+            }
+        }
+
+        function updateScormStatus(statusText) {
+            const statusEl = document.getElementById('scorm-status-text');
+            const footerStatusEl = document.getElementById('footer-scorm-status');
+            if (statusEl) statusEl.textContent = 'Estado: ' + statusText;
+            if (footerStatusEl) footerStatusEl.textContent = statusText;
+        }
+
+        function completeTopic(topicId) {
+            completedTopics.add(topicId);
+            updateScormProgress();
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast-notification');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+            
+            if (toastTitle) toastTitle.textContent = title;
+            if (toastMessage) toastMessage.textContent = message;
+            
+            if (toast) {
+                toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+                setTimeout(function() {
+                    toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+                }, 3000);
+            }
+        }
+
+        // ============================================
+        // Navigation & Scroll
+        // ============================================
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // ============================================
+        // Quiz Logic
+        // ============================================
+        const correctAnswers = {
+            q1: 'b',
+            q2: 'b',
+            q3: 'b',
+            q4: 'c'
+        };
+
+        const explanations = {
+            q1: 'Correcto: IHttpClientFactory gestiona un pool de conexiones y recicla sockets, evitando el agotamiento de recursos del sistema operativo.',
+            q2: 'Correcto: Ollama expone su API REST en http://localhost:11434 por defecto.',
+            q3: 'Correcto: GetStreamAsync() devuelve un Stream sin bufferizar, ideal para lectura incremental de respuestas grandes o streaming.',
+            q4: 'Correcto: El parámetro "stream": true en el payload JSON activa el modo streaming en Ollama.'
+        };
+
+        function evaluateQuiz() {
+            let correctCount = 0;
+            let allAnswered = true;
+
+            for (let q = 1; q <= 4; q++) {
+                const questionName = 'q' + q;
+                const selected = document.querySelector(`input[name="${questionName}"]:checked`);
+                const feedbackEl = document.querySelector(`[data-question="${q}"] .feedback`);
+                
+                if (!selected) {
+                    allAnswered = false;
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '⚠️ Selecciona una respuesta';
+                        feedbackEl.className = 'feedback mt-3 text-sm text-amber-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                    continue;
+                }
+
+                const isCorrect = selected.value === correctAnswers[questionName];
+                
+                if (isCorrect) {
+                    correctCount++;
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '✓ ' + explanations[questionName];
+                        feedbackEl.className = 'feedback mt-3 text-sm text-emerald-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                } else {
+                    if (feedbackEl) {
+                        feedbackEl.textContent = '✗ Respuesta incorrecta. Revisa el contenido del módulo.';
+                        feedbackEl.className = 'feedback mt-3 text-sm text-red-600';
+                        feedbackEl.classList.remove('hidden');
+                    }
+                }
+            }
+
+            if (!allAnswered) {
+                showToast('Respuestas incompletas', 'Por favor responde todas las preguntas');
+                return;
+            }
+
+            const resultDiv = document.getElementById('quiz-result');
+            const scorePercent = Math.round((correctCount / 4) * 100);
+            
+            if (correctCount === 4) {
+                resultDiv.className = 'mt-8 p-6 rounded-xl text-center bg-emerald-50 border border-emerald-200';
+                resultDiv.innerHTML = `
+                    <div class="text-5xl mb-3">🎉</div>
+                    <h3 class="text-xl font-bold text-emerald-800 mb-2">¡Módulo 2 Completado!</h3>
+                    <p class="text-emerald-700">Obtuviste ${correctCount}/4 respuestas correctas (${scorePercent}%)</p>
+                    <p class="text-sm text-emerald-600 mt-2">Progreso registrado en SCORM</p>
+                `;
+                completeTopic('sco_module2');
+                showToast('¡Felicitaciones!', 'Módulo 2 completado exitosamente');
+                
+                if (window.API) {
+                    window.API.LMSSetValue('cmi.core.lesson_status', 'completed');
+                    window.API.LMSSetValue('cmi.core.score.raw', '100');
+                    window.API.LMSCommit('');
+                }
+            } else {
+                resultDiv.className = 'mt-8 p-6 rounded-xl text-center bg-amber-50 border border-amber-200';
+                resultDiv.innerHTML = `
+                    <div class="text-5xl mb-3">📚</div>
+                    <h3 class="text-xl font-bold text-amber-800 mb-2">Casi lo logras</h3>
+                    <p class="text-amber-700">Obtuviste ${correctCount}/4 respuestas correctas</p>
+                    <p class="text-sm text-amber-600 mt-2">Revisa los temas marcados en rojo e intenta de nuevo</p>
+                `;
+                completeTopic('sco_module2_partial');
+                showToast('Resultado parcial', `${correctCount}/4 correctas. ¡Sigue intentando!`);
+            }
+            
+            resultDiv.classList.remove('hidden');
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // ============================================
+        // Intersection Observer for Animations
+        // ============================================
+        (function setupScrollAnimations() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        const scoId = entry.target.getAttribute('data-sco-id');
+                        if (scoId && scoId.startsWith('sco_topic')) {
+                            completeTopic(scoId);
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            const fadeElements = document.querySelectorAll('.fade-up');
+            fadeElements.forEach(function(el) {
+                observer.observe(el);
+            });
+        })();
+
+        // ============================================
+        // Initialize
+        // ============================================
+        window.addEventListener('load', function() {
+            if (window.API && !window.API.LMSGetValue('cmi.core.lesson_status')) {
+                window.API.LMSInitialize('');
+            }
+            updateScormStatus('Módulo 2 listo');
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (window.API) {
+                window.API.LMSCommit('');
+            }
+        });
+    </script>
+</body>
+</html>
+

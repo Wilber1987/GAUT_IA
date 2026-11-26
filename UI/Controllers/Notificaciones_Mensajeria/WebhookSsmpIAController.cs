@@ -28,6 +28,7 @@ namespace UI.SSMP_IA.ApiControllers
 		private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(100); // Limitar a 10 tareas simultáneas
 
 		[HttpPost]
+		[AuthController]
 		public async Task<IActionResult> ReceiveMessage(UserMessage unifiedMessage)
 		{
 			try

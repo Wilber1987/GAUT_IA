@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Capacitación de 8 horas sobre Inteligencia Artificial Open Source con .NET - Comunicación vía APIs REST, RAG, MCP">
+    <meta name="scorm-version" content="1.2">
+    <meta name="scorm-title" content="IA Open Source en .NET - Capacitación 8 Horas">
+    <title>IA Open Source en .NET | Capacitación Profesional</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/index.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+        }
+        
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .module-card {
+            transition: all 0.3s ease;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .scorm-progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #6366f1;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .pulse-dot {
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- SCORM Progress Tracker (Fixed Top) -->
+    <div id="scorm-tracker" class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+                <span>SCORM 1.2 Activo</span>
+                <span class="hidden sm:inline text-slate-400">|</span>
+                <span class="hidden sm:inline" id="scorm-status-text">Estado: Inicializando...</span>
+            </div>
+            <div class="flex items-center gap-3 flex-1 max-w-md">
+                <div class="text-xs font-medium text-slate-600 whitespace-nowrap">Progreso:</div>
+                <div class="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="scorm-progress-fill" class="scorm-progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-700 rounded-full" style="width: 0%"></div>
+                </div>
+                <span id="scorm-progress-percent" class="text-xs font-bold text-brand-600 w-10 text-right">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-10 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">AI</div>
+                <span class="font-bold text-slate-800">IA Open Source <span class="text-brand-600">.NET</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+                <a href="#objetivos" class="nav-link hover:text-brand-600">Objetivos</a>
+                <a href="#temario" class="nav-link hover:text-brand-600">Temario</a>
+                <a href="#rag" class="nav-link hover:text-brand-600">RAG</a>
+                <a href="#requisitos" class="nav-link hover:text-brand-600">Requisitos</a>
+            </div>
+            <button onclick="scrollToSection('inscripcion')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors">
+                Inscribirse
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-gradient pt-32 pb-20 relative overflow-hidden" data-sco-id="sco_hero">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-brand-500 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-up">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-medium mb-6">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+                        Capacitación Profesional · 8 Horas
+                    </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                        Inteligencia Artificial <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-purple-300">Open Source</span> en .NET
+                    </h1>
+                    <p class="text-lg text-slate-300 mb-8 leading-relaxed">
+                        Domina la integración de LLMs locales con C# puro. Comunicación vía APIs REST/HTTPS, RAG con procesamiento algorítmico y Model Context Protocol (MCP). Sin wrappers, sin Python en tu código.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="scrollToSection('temario')" class="px-6 py-3 bg-white text-brand-700 font-semibold rounded-lg hover:bg-slate-100 transition-colors shadow-lg">
+                            Ver Temario
+                        </button>
+                        <button onclick="scrollToSection('inscripcion')" class="px-6 py-3 bg-brand-600/30 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-lg hover:bg-brand-600/50 transition-colors">
+                            Inscribirse Ahora
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-6 mt-10 text-sm text-slate-400">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            2 Encuentros de 4h
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            100% Práctico
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Certificado SCORM
+                        </div>
+                    </div>
+                </div>
+                <div class="fade-up hidden lg:block">
+                    <img src="https://image.qwenlm.ai/public_source/a87c8742-10ec-43bf-ae16-94e4d7ce60b6/17d1d331e-d042-4185-a41f-3350d2909e04.png" 
+                         alt="IA Open Source con .NET" 
+                         class="rounded-2xl shadow-2xl border border-white/10 w-full">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Objetivos Section -->
+    <section id="objetivos" class="py-20 bg-white" data-sco-id="sco_objetivos">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="text-brand-600 font-semibold text-sm uppercase tracking-wider">Objetivos de Aprendizaje</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mt-2">¿Qué lograrás en esta capacitación?</h2>
+                <p class="text-slate-600 mt-4 max-w-2xl mx-auto">Al finalizar los 2 encuentros, serás capaz de integrar modelos de IA open source en aplicaciones .NET enterprise sin depender de servicios en la nube ni wrappers de terceros.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="fade-up p-6 rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">Servidores Locales</h3>
+                    <p class="text-sm text-slate-600">Despliega y gestiona Ollama, LM Studio y llama.cpp como proveedores de inferencia local.</p>
+                </div>
+                
+                <div class="fade-up p-6 rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">C# Puro y APIs REST</h3>
+                    <p class="text-sm text-slate-600">Comunicación directa vía HttpClient y System.Text.Json. Sin OllamaSharp ni Microsoft.Extensions.AI.</p>
+                </div>
+                
+                <div class="fade-up p-6 rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">RAG con Lógica .NET</h3>
+                    <p class="text-sm text-slate-600">Implementa Retrieval-Augmented Generation con chunking algorítmico y filtros híbridos en C#.</p>
+                </div>
+                
+                <div class="fade-up p-6 rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">Streaming en Tiempo Real</h3>
+                    <p class="text-sm text-slate-600">Manejo de streams HTTP con IAsyncEnumerable y lectura de tokens en tiempo real desde .NET.</p>
+                </div>
+                
+                <div class="fade-up p-6 rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">Model Context Protocol</h3>
+                    <p class="text-sm text-slate-600">Integra MCP para que los LLMs invoquen funciones de C# de forma autónoma y tipada.</p>
+                </div>
+                
+                <div class="fade-up p-6 rounded-xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-slate-800 mb-2">Seguridad y Producción</h3>
+                    <p class="text-sm text-slate-600">Datos sensibles nunca salen de tu infraestructura. Validación de esquemas JSON y manejo de errores.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Temario Section (SCORM Modules) -->
+    <section id="temario" class="py-20 bg-slate-50" data-sco-id="sco_temario">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="text-brand-600 font-semibold text-sm uppercase tracking-wider">Temario Completo</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mt-2">8 horas divididas en 2 encuentros</h2>
+                <p class="text-slate-600 mt-4 max-w-2xl mx-auto">Cada módulo es un SCO (Sharable Content Object) independiente, compatible con cualquier LMS que soporte SCORM 1.2.</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Módulo 1 -->
+                <div class="fade-up module-card bg-white rounded-2xl border border-slate-200 overflow-hidden" data-sco-id="sco_mod1">
+                    <div class="grid md:grid-cols-4">
+                        <div class="bg-gradient-to-br from-brand-600 to-brand-800 p-6 md:col-span-1 flex flex-col justify-center">
+                            <span class="text-brand-200 text-xs font-semibold uppercase">Encuentro 1 · Horas 1-2</span>
+                            <h3 class="text-white font-bold text-xl mt-2">Fundamentos y Entornos Locales</h3>
+                        </div>
+                        <div class="p-6 md:col-span-3">
+                            <ul class="space-y-3 text-sm text-slate-700">
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                                    <span><strong>IA Open Source:</strong> Ecosistema Hugging Face, modelos open source vs. propietarios.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                                    <span><strong>Cuantización (GGUF):</strong> Q4_K_M vs Q8_0. Regla: 1B parámetros ≈ 0.7-1GB en RAM.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                                    <span><strong>Destilación:</strong> Phi-3, Llama-3-8B, Qwen2.5 heredan capacidades de modelos masivos.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">4</span>
+                                    <span><strong>Despliegue:</strong> Ollama (localhost:11434) y LM Studio (localhost:1234/v1). Descarga de modelos.</span>
+                                </li>
+                            </ul>
+                            <button onclick="completeModule('sco_mod1')" class="mt-4 px-4 py-2 bg-brand-50 text-brand-700 text-sm font-medium rounded-lg hover:bg-brand-100 transition-colors">
+                                Marcar como completado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Módulo 2 -->
+                <div class="fade-up module-card bg-white rounded-2xl border border-slate-200 overflow-hidden" data-sco-id="sco_mod2">
+                    <div class="grid md:grid-cols-4">
+                        <div class="bg-gradient-to-br from-purple-600 to-purple-800 p-6 md:col-span-1 flex flex-col justify-center">
+                            <span class="text-purple-200 text-xs font-semibold uppercase">Encuentro 1 · Horas 3-4</span>
+                            <h3 class="text-white font-bold text-xl mt-2">Comunicación HTTPS Pura en .NET</h3>
+                        </div>
+                        <div class="p-6 md:col-span-3">
+                            <ul class="space-y-3 text-sm text-slate-700">
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                                    <span><strong>Anatomía de APIs:</strong> Endpoints /api/generate, /api/chat, /api/embeddings y /v1/chat/completions.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                                    <span><strong>HttpClient en .NET:</strong> IHttpClientFactory, evitar Socket Exhaustion, configuración de timeouts.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                                    <span><strong>Serialización:</strong> System.Text.Json, records tipados, manejo de payloads JSON.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">4</span>
+                                    <span><strong>Streaming:</strong> GetStreamAsync(), lectura de tokens en tiempo real con StreamReader.</span>
+                                </li>
+                            </ul>
+                            <button onclick="completeModule('sco_mod2')" class="mt-4 px-4 py-2 bg-purple-50 text-purple-700 text-sm font-medium rounded-lg hover:bg-purple-100 transition-colors">
+                                Marcar como completado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Módulo 3 -->
+                <div class="fade-up module-card bg-white rounded-2xl border border-slate-200 overflow-hidden" data-sco-id="sco_mod3">
+                    <div class="grid md:grid-cols-4">
+                        <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 p-6 md:col-span-1 flex flex-col justify-center">
+                            <span class="text-emerald-200 text-xs font-semibold uppercase">Encuentro 2 · Horas 5-6</span>
+                            <h3 class="text-white font-bold text-xl mt-2">RAG y Procesamiento Algorítmico</h3>
+                        </div>
+                        <div class="p-6 md:col-span-3">
+                            <ul class="space-y-3 text-sm text-slate-700">
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                                    <span><strong>Pipeline RAG:</strong> Ingesta → Chunking → Embedding → Almacenamiento → Recuperación → Generación.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                                    <span><strong>Chunking en C#:</strong> Segmentación algorítmica por caracteres, tokens o saltos de línea.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                                    <span><strong>Embeddings locales:</strong> nomic-embed-text, bge-m3 vía API REST de Ollama.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">4</span>
+                                    <span><strong>Filtrado híbrido:</strong> Similitud coseno en C# + filtros LINQ por metadatos (fecha, categoría).</span>
+                                </li>
+                            </ul>
+                            <button onclick="completeModule('sco_mod3')" class="mt-4 px-4 py-2 bg-emerald-50 text-emerald-700 text-sm font-medium rounded-lg hover:bg-emerald-100 transition-colors">
+                                Marcar como completado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Módulo 4 -->
+                <div class="fade-up module-card bg-white rounded-2xl border border-slate-200 overflow-hidden" data-sco-id="sco_mod4">
+                    <div class="grid md:grid-cols-4">
+                        <div class="bg-gradient-to-br from-amber-600 to-amber-800 p-6 md:col-span-1 flex flex-col justify-center">
+                            <span class="text-amber-200 text-xs font-semibold uppercase">Encuentro 2 · Horas 7-8</span>
+                            <h3 class="text-white font-bold text-xl mt-2">Salida Estructurada y MCP</h3>
+                        </div>
+                        <div class="p-6 md:col-span-3">
+                            <ul class="space-y-3 text-sm text-slate-700">
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                                    <span><strong>JSON Mode:</strong> Forzar respuestas tipadas con format: "json" y deserialización con System.Text.Json.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                                    <span><strong>Minimal API:</strong> Endpoint .NET que recibe pregunta, recupera contexto y devuelve respuesta estructurada.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                                    <span><strong>MCP (Model Context Protocol):</strong> Estándar abierto de Anthropic para conectar LLMs con herramientas.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">4</span>
+                                    <span><strong>Tools en C#:</strong> JSON-RPC sobre stdio/SSE. El LLM invoca funciones de C# basándose en el contexto.</span>
+                                </li>
+                            </ul>
+                            <button onclick="completeModule('sco_mod4')" class="mt-4 px-4 py-2 bg-amber-50 text-amber-700 text-sm font-medium rounded-lg hover:bg-amber-100 transition-colors">
+                                Marcar como completado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RAG Deep Dive Section -->
+    <section id="rag" class="py-20 bg-white" data-sco-id="sco_rag">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-up order-2 lg:order-1">
+                    <img src="https://image.qwenlm.ai/public_source/a87c8742-10ec-43bf-ae16-94e4d7ce60b6/196714f23-197c-46c3-89ff-624a57d5b14d.png" 
+                         alt="Pipeline RAG con .NET" 
+                         class="rounded-2xl shadow-xl w-full">
+                </div>
+                <div class="fade-up order-1 lg:order-2">
+                    <span class="text-brand-600 font-semibold text-sm uppercase tracking-wider">Deep Dive</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mt-2 mb-6">RAG con Procesamiento Algorítmico en C#</h2>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        No delegues toda la lógica al LLM. En esta capacitación aprenderás a usar C# para pre-procesar documentos, aplicar filtros metabólicos y post-procesar respuestas, garantizando resultados confiables en producción.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">Chunking Algorítmico</h4>
+                                <p class="text-sm text-slate-600">División de texto por tokens o caracteres en C# puro, sin dependencias externas.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">Similitud de Coseno en C#</h4>
+                                <p class="text-sm text-slate-600">Cálculo vectorial nativo con LINQ y arrays de floats para ranking de documentos.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-800">Validación de Esquemas JSON</h4>
+                                <p class="text-sm text-slate-600">Deserialización robusta con records y validación estricta para evitar fallos en producción.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requisitos Section -->
+    <section id="requisitos" class="py-20 bg-slate-900 text-white" data-sco-id="sco_requisitos">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <span class="text-brand-400 font-semibold text-sm uppercase tracking-wider">Preparación</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2">Requisitos Técnicos</h2>
+                <p class="text-slate-400 mt-4 max-w-2xl mx-auto">Todo lo que necesitas para aprovechar al máximo la capacitación.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="fade-up p-6 rounded-xl bg-slate-800/50 border border-slate-700">
+                    <div class="w-12 h-12 rounded-lg bg-brand-600/20 text-brand-400 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-3">Hardware</h3>
+                    <ul class="text-sm text-slate-400 space-y-2">
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>16GB+ RAM (recomendado)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>GPU con 6GB+ VRAM o Apple Silicon</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>20GB de espacio en disco</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="fade-up p-6 rounded-xl bg-slate-800/50 border border-slate-700">
+                    <div class="w-12 h-12 rounded-lg bg-brand-600/20 text-brand-400 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-3">Software .NET</h3>
+                    <ul class="text-sm text-slate-400 space-y-2">
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>.NET 8 o .NET 9 SDK</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>Visual Studio 2022 o VS Code</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>Git para control de versiones</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="fade-up p-6 rounded-xl bg-slate-800/50 border border-slate-700">
+                    <div class="w-12 h-12 rounded-lg bg-brand-600/20 text-brand-400 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-lg mb-3">Servidores Locales</h3>
+                    <ul class="text-sm text-slate-400 space-y-2">
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>Ollama (recomendado)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>LM Studio (alternativa visual)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand-400 mt-1">•</span>
+                            <span>llama.cpp (base nativa)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-12 p-6 rounded-xl bg-brand-900/30 border border-brand-700/50 fade-up">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-brand-600 text-white flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white mb-2">Filosofía del Curso</h4>
+                        <p class="text-sm text-slate-300">
+                            <strong class="text-brand-300">C# para la lógica, Open Source para la inferencia.</strong> Toda la programación de aplicación se realiza exclusivamente en .NET. Python solo se utiliza en los binarios nativos de los servidores locales (Ollama, LM Studio), nunca en tu código de aplicación. La comunicación es 100% vía APIs REST/HTTPS usando System.Net.Http.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Inscripción Section -->
+    <section id="inscripcion" class="py-20 bg-gradient-to-br from-brand-600 to-brand-800 text-white" data-sco-id="sco_inscripcion">
+        <div class="max-w-4xl mx-auto px-4 text-center fade-up">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">¿Listo para dominar la IA Open Source en .NET?</h2>
+            <p class="text-brand-100 text-lg mb-8 max-w-2xl mx-auto">
+                Únete a esta capacitación intensiva de 8 horas y lleva tus habilidades de integración de IA al siguiente nivel.
+            </p>
+            
+            <div class="grid md:grid-cols-3 gap-4 mb-10 max-w-2xl mx-auto">
+                <div class="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
+                    <div class="text-3xl font-bold">8h</div>
+                    <div class="text-sm text-brand-200">Duración total</div>
+                </div>
+                <div class="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
+                    <div class="text-3xl font-bold">2</div>
+                    <div class="text-sm text-brand-200">Encuentros</div>
+                </div>
+                <div class="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
+                    <div class="text-3xl font-bold">4</div>
+                    <div class="text-sm text-brand-200">Módulos SCORM</div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="handleInscripcion()" class="px-8 py-4 bg-white text-brand-700 font-bold rounded-lg hover:bg-brand-50 transition-colors shadow-xl text-lg">
+                    Inscribirme Ahora
+                </button>
+                <button onclick="scrollToSection('temario')" class="px-8 py-4 bg-brand-700/50 backdrop-blur-sm border border-white/30 text-white font-bold rounded-lg hover:bg-brand-700/70 transition-colors text-lg">
+                    Ver Temario Completo
+                </button>
+            </div>
+
+            <p class="text-sm text-brand-200 mt-8">
+                Certificación SCORM 1.2 incluida · Acceso a repositorio GitHub · Material descargable
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm">AI</div>
+                        <span class="font-bold text-white">IA Open Source .NET</span>
+                    </div>
+                    <p class="text-sm">Capacitación profesional en integración de IA open source con tecnologías Microsoft.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Contenido</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#objetivos" class="hover:text-white transition-colors">Objetivos</a></li>
+                        <li><a href="#temario" class="hover:text-white transition-colors">Temario</a></li>
+                        <li><a href="#rag" class="hover:text-white transition-colors">RAG</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Tecnologías</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>.NET 8/9</li>
+                        <li>Ollama</li>
+                        <li>LM Studio</li>
+                        <li>MCP Protocol</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">SCORM</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>Versión: 1.2</li>
+                        <li>SCOs: 6</li>
+                        <li>Estado: <span id="footer-scorm-status" class="text-emerald-400">Activo</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm">© 2026 IA Open Source .NET Training. Todos los derechos reservados.</p>
+                <p class="text-xs">Compatible con SCORM 1.2 / 2004 · LMS Ready</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-800 text-white px-6 py-4 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div>
+                <div class="font-semibold text-sm" id="toast-title">Módulo completado</div>
+                <div class="text-xs text-slate-400" id="toast-message">Progreso guardado vía SCORM</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SCORM 1.2 Mock API - Compatible con LMS
+        // ============================================
+        (function initializeScormAPI() {
+            const scormData = {
+                'cmi.core.lesson_status': 'not attempted',
+                'cmi.core.score.raw': '0',
+                'cmi.core.score.max': '100',
+                'cmi.core.entry': '',
+                'cmi.core.exit': '',
+                'cmi.core.session_time': '00:00:00',
+                'cmi.suspend_data': '',
+                'cmi.core.lesson_location': '',
+                'modules_completed': '[]',
+                'initialized': false
+            };
+
+            // SCORM 1.2 API object
+            const scormAPI = {
+                LMSInitialize: function(param) {
+                    scormData.initialized = true;
+                    scormData['cmi.core.lesson_status'] = 'incomplete';
+                    updateScormStatus('Inicializado');
+                    console.log('[SCORM] LMSInitialize called');
+                    return 'true';
+                },
+                LMSFinish: function(param) {
+                    scormData['cmi.core.lesson_status'] = 'completed';
+                    scormData['cmi.core.exit'] = 'logout';
+                    updateScormStatus('Finalizado');
+                    console.log('[SCORM] LMSFinish called');
+                    return 'true';
+                },
+                LMSGetValue: function(element) {
+                    const value = scormData[element] !== undefined ? scormData[element] : '';
+                    console.log(`[SCORM] LMSGetValue(${element}) = ${value}`);
+                    return value;
+                },
+                LMSSetValue: function(element, value) {
+                    scormData[element] = value;
+                    console.log(`[SCORM] LMSSetValue(${element}, ${value})`);
+                    
+                    if (element === 'cmi.core.lesson_status' && value === 'completed') {
+                        updateScormStatus('Completado');
+                    }
+                    return 'true';
+                },
+                LMSCommit: function(param) {
+                    console.log('[SCORM] LMSCommit - Datos persistidos');
+                    return 'true';
+                },
+                LMSGetLastError: function() { return '0'; },
+                LMSGetErrorString: function(code) { return 'No error'; },
+                LMSGetDiagnostic: function(code) { return ''; }
+            };
+
+            // Expose to window for LMS compatibility
+            window.API = scormAPI;
+            window.API_1484_11 = scormAPI; // SCORM 2004 alias
+            
+            // Auto-initialize if no LMS provides the API
+            setTimeout(function() {
+                if (!window.parent.API && !window.top.API) {
+                    window.API = scormAPI;
+                    scormAPI.LMSInitialize('');
+                }
+            }, 100);
+        })();
+
+        // ============================================
+        // SCORM Progress Management
+        // ============================================
+        const completedModules = new Set();
+        const totalModules = 4;
+
+        function updateScormProgress() {
+            const progressPercent = Math.round((completedModules.size / totalModules) * 100);
+            const progressFill = document.getElementById('scorm-progress-fill');
+            const progressPercentEl = document.getElementById('scorm-progress-percent');
+            
+            if (progressFill) progressFill.style.width = progressPercent + '%';
+            if (progressPercentEl) progressPercentEl.textContent = progressPercent + '%';
+
+            // Update SCORM data
+            if (window.API) {
+                window.API.LMSSetValue('cmi.core.score.raw', progressPercent.toString());
+                window.API.LMSCommit('');
+            }
+
+            if (progressPercent === 100) {
+                updateScormStatus('Completado al 100%');
+                if (window.API) {
+                    window.API.LMSSetValue('cmi.core.lesson_status', 'completed');
+                    window.API.LMSCommit('');
+                }
+            }
+        }
+
+        function updateScormStatus(statusText) {
+            const statusEl = document.getElementById('scorm-status-text');
+            const footerStatusEl = document.getElementById('footer-scorm-status');
+            if (statusEl) statusEl.textContent = 'Estado: ' + statusText;
+            if (footerStatusEl) footerStatusEl.textContent = statusText;
+        }
+
+        function completeModule(scoId) {
+            completedModules.add(scoId);
+            updateScormProgress();
+            
+            // Mark visually
+            const moduleCard = document.querySelector(`[data-sco-id="${scoId}"]`);
+            if (moduleCard) {
+                moduleCard.classList.add('ring-2', 'ring-emerald-500');
+                const button = moduleCard.querySelector('button');
+                if (button) {
+                    button.textContent = '✓ Completado';
+                    button.classList.remove('bg-brand-50', 'text-brand-700', 'bg-purple-50', 'text-purple-700', 'bg-emerald-50', 'text-emerald-700', 'bg-amber-50', 'text-amber-700');
+                    button.classList.add('bg-emerald-100', 'text-emerald-700');
+                }
+            }
+
+            // Show toast
+            showToast('Módulo completado', `SCO ${scoId} registrado en SCORM`);
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast-notification');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+            
+            if (toastTitle) toastTitle.textContent = title;
+            if (toastMessage) toastMessage.textContent = message;
+            
+            if (toast) {
+                toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+                setTimeout(function() {
+                    toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+                }, 3000);
+            }
+        }
+
+        // ============================================
+        // Navigation & Scroll
+        // ============================================
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function handleInscripcion() {
+            showToast('¡Inscripción iniciada!', 'Redirigiendo al formulario de registro...');
+            // In a real scenario, this would redirect to a registration form
+            setTimeout(function() {
+                alert('Formulario de inscripción: En un entorno SCORM real, esto abriría el LMS de registro.');
+            }, 500);
+        }
+
+        // ============================================
+        // Intersection Observer for Animations
+        // ============================================
+        (function setupScrollAnimations() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            const fadeElements = document.querySelectorAll('.fade-up');
+            fadeElements.forEach(function(el) {
+                observer.observe(el);
+            });
+        })();
+
+        // ============================================
+        // Initialize SCORM on load
+        // ============================================
+        window.addEventListener('load', function() {
+            if (window.API && !window.API.LMSGetValue('cmi.core.lesson_status')) {
+                window.API.LMSInitialize('');
+            }
+            updateScormStatus('Listo');
+        });
+
+        // Save state on unload
+        window.addEventListener('beforeunload', function() {
+            if (window.API) {
+                window.API.LMSCommit('');
+            }
+        });
+    </script>
+</body>
+</html>

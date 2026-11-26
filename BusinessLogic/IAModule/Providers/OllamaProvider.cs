@@ -44,18 +44,34 @@ namespace BusinessLogic.IA.Providers
             return result?.embedding ?? Array.Empty<float>();
         }
 
-        public async Task<string?> GetCompletionAsync(string prompt)
+       public async Task<string?> GetCompletionAsync(string systemPrompt, List<ChatMessage> messages)
         {
             using var client = CreateClient();
-            var response = await client.PostAsJsonAsync($"{_host}/api/generate", new
+
+            // Ollama /api/chat espera role: "system" | "user" | "assistant"
+            var ollamaMessages = new List<object>();
+
+            if (!string.IsNullOrWhiteSpace(systemPrompt))
             {
-                model  = _completionModel,
-                prompt = prompt,
-                stream = false
+                ollamaMessages.Add(new { role = "system", content = systemPrompt });
+            }
+
+            ollamaMessages.AddRange(messages.Select(m => (object)new
+            {
+                role = m.Role,       // "user" o "assistant"
+                content = m.Content
+            }));
+
+            var response = await client.PostAsJsonAsync($"{_host}/api/chat", new
+            {
+                model    = _completionModel,
+                messages = ollamaMessages,
+                stream   = false
             });
             response.EnsureSuccessStatusCode();
+
             var result = await response.Content.ReadFromJsonAsync<OllamaGenerateResponse>();
-            return result?.response;
+            return result?.message?.content;
         }
 
         private static HttpClient CreateClient() =>

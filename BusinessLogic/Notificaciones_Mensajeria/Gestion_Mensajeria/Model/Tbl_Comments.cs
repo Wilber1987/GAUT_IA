@@ -24,6 +24,7 @@ namespace CAPA_NEGOCIO.MAPEO
 		public DateTime? Fecha { get; set; }
         public bool? IsVectorized { get; set; }
 		public string? Token { get;  set; }
+		public int? Id_conversacion { get; set; }
 
         public async Task<ResponseService> SaveComment(string identity, Boolean withMail = true)
 		{

@@ -13,20 +13,10 @@
     localStorage.setItem("MEDIA_IMG_PATH", '@SystemConfig.MEDIA_IMG_PATH');
     localStorage.setItem("LOGO_PRINCIPAL", '@SystemConfig.LOGO_PRINCIPAL');
 </script>
-<link rel="stylesheet" href="~/WDevCore/StyleModules/css/variables.css">
 <script type="module">
-    import { WChatComponent } from "/WDevCore/WComponents/WChatComponent.js";
-    window.onload = () => {
-        MainContainer.append(new WChatComponent({
-            Url: "../api/WebhookSsmpIA",
-            UrlGetConfigData: "../api/ApiEntityHelpdesk/getTbl_CommentsWeb",
-            UrlSearch: "../api/ApiEntityHelpdesk/getTbl_CommentsWeb",
-            UrlAdd: "../api/ApiEntityHelpdesk/saveTbl_CommentsWeb",
-            UserIdProp: "Id_User",
-            CommentsIdentify: undefined,
-            CommentsIdentifyName: "Id_Case",
-            AddObject: false
-        }));
-    } 
+    import {WebChatView} from "/Template/WebChatView.js";
+    window.onload = ()=> {
+        MainContainer.append(new WebChatView());
+    }
 </script>
 </div>

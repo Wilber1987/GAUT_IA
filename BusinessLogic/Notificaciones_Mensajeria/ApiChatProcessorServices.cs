@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using CAPA_NEGOCIO.SystemConfig;
 using APPCORE.SystemConfig;
 using APPCORE.Services;
+using BusinessLogic.Notificaciones_Mensajeria.Gestion_Mensajeria.Model;
 
 namespace CAPA_NEGOCIO
 {
@@ -69,7 +70,26 @@ namespace CAPA_NEGOCIO
 		}
 
 		public static void AddComment(UserMessage interaction, bool isSystem = false)
-		{
+		{			
+			if (interaction.Token == null)
+			{
+				interaction.Token = Guid.NewGuid().ToString();
+			}
+
+			Tbl_Comments_Conversations? conversacion = new Tbl_Comments_Conversations().Find<Tbl_Comments_Conversations>(
+				FilterData.Equal("Token", interaction.Token)
+			);
+			if (conversacion == null)
+			{
+				conversacion =  new Tbl_Comments_Conversations
+				{
+					CreatedAt = DateTime.Now,
+					Token = interaction.Token,
+					Nombre = interaction.Text ?? DateTime.Now.ToString("dd/MM/yyyy hh:mm"),
+					Estado = ConversationsState.ACTIVA
+				}.Save() as Tbl_Comments_Conversations;
+			}
+
 			ModelFiles? Response = null;
 			if (interaction.Source == SourceTypeEnum.WEB_API)
 			{
@@ -85,7 +105,8 @@ namespace CAPA_NEGOCIO
 				Estado = CommetsState.Leido,
 				Mail = interaction.UserId,
 				Attach_Files = Response == null ? [interaction.Attach] : [Response],
-				Token = interaction.Token
+				Token = interaction.Token,
+				Id_conversacion = conversacion?.Id_Conversacion
 			}.Save() as Tbl_Comments;
 
 			interaction.Id_comment = us?.Id_Comentario;
@@ -100,7 +121,8 @@ namespace CAPA_NEGOCIO
 						Fecha = DateTime.Now,
 						Estado = CommetsState.Leido,
 						Mail = "traking_system@soporte.net",
-						Token = interaction.Token
+						Token = interaction.Token,
+						Id_conversacion = conversacion?.Id_Conversacion
 					};
 					ia.Save();
 				}
@@ -113,7 +135,8 @@ namespace CAPA_NEGOCIO
 						Fecha = DateTime.Now,
 						Estado = CommetsState.Leido,
 						Mail = "IA@soporte.net",
-						Token = interaction.Token
+						Token = interaction.Token,
+						Id_conversacion = conversacion?.Id_Conversacion
 					};
 					ia.Save();
 				}

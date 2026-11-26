@@ -21,11 +21,11 @@ namespace BusinessLogic.ApiChat.AutomaticIA.TrainingModule
             IAService iaService = new IAService();
             foreach (var item in preRagElements)
             {
-                string? searchText =  string.IsNullOrWhiteSpace(item.Query) ? item.BodyResponse : $"{item.Query} {item.BodyResponse}";
+                string? searchText = string.IsNullOrWhiteSpace(item.Query) ? item.BodyResponse : $"{item.Query} {item.BodyResponse}";
 
                 string contentText = $@"Pregunta: {item.Query} \n Respuesta: {item.BodyResponse}";
                 float[] vector = await iaService.GetEmbedding(searchText);
-                byte[] vectorBytes =  VectorHelper.FloatArrayToByteArray(vector);
+                byte[] vectorBytes = VectorHelper.FloatArrayToByteArray(vector);
                 var knowledge = new Tbl_Knowledge_Base
                 {
                     ServiceTagId = item.Id_Servicio,
@@ -37,6 +37,25 @@ namespace BusinessLogic.ApiChat.AutomaticIA.TrainingModule
                 }.Save() as Tbl_Knowledge_Base;
                 Console.WriteLine($"Nuevo conocimiento: ${knowledge?.Id_Knowledge} - ${knowledge?.Category}");
             }
+        }
+
+        public  async Task ProcessTraining(PreRagElement preRagElements)
+        {
+            IAService iaService = new IAService();
+            var chunkEmbeddings = await iaService.GenerateEmbeddingsFromPdfAsync($@"Pregunta: {preRagElements.Query} \n Respuesta: {preRagElements.BodyResponse}");
+
+            foreach (var (chunkText, vector) in chunkEmbeddings)
+            {
+                new Tbl_Knowledge_Base
+                {
+                    Content_Text = chunkText,
+                    Vector_Data = VectorHelper.FloatArrayToByteArray(vector),
+                    ServiceTag = preRagElements.Category,
+                    ServiceTagId = preRagElements.Id_Servicio,
+                    CreatedAt = DateTime.UtcNow
+                }.Save();
+            }
+
         }
     }
 }

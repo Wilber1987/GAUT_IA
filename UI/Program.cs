@@ -57,10 +57,9 @@ var app = builder.Build();
 new BDConnection().InitMainConnection(app.Environment.IsDevelopment());
 SystemConfigImpl.IsDevelopment = app.Environment.IsDevelopment();
 
-
-new StudentsSimulator().Execute();
+//new StudentsSimulator().Execute();
 // Configure the HTTP request pipeline.
-new FormsIAOperation().ProcessForm();
+//new FormsIAOperation().ProcessForm();
 
 if (!app.Environment.IsDevelopment())
 {	

@@ -29,7 +29,7 @@ namespace BusinessLogic.Connection
 				switch (machineName)
 				{
 					//case "WILBER":	return SqlADOConexion.IniciarConexion("sa", "zaxscd", "localhost", "GAUT_IA_PROD");
-					case "WILBER":	return SqlADOConexion.IniciarConexion("sa", "zaxscd", "localhost", "GAUT_IA");
+					case "MSI":	return SqlADOConexion.IniciarConexion("sa", "zaxscd", "localhost", "GAUT_IA");
 				}
 			}
 			//CONEXIONES DE PRODUCCION

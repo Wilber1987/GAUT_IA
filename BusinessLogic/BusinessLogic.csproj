@@ -10,4 +10,8 @@
     <ProjectReference Include="..\AppCore\AppCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
+  </ItemGroup>
+
 </Project>
