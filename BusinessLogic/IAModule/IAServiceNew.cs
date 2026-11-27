@@ -118,7 +118,7 @@ namespace BusinessLogic.IA
             messages.Add(new ChatMessage { Role = "user", Content = request.Text });
 
             // G. Generar respuesta fluida con el proveedor activo (system separado del historial)
-            request.MessageIA = await _provider.GetCompletionAsync(systemPrompt, messages);
+            request.MessageIA = await _provider.GetCompletionAsyncNormal(systemPrompt, messages);
             request.IsWithIaResponse = true;
 
            

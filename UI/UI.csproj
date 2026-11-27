@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Folder Include="Pages\NewFolder\" />
+    <Folder Include="Skills\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

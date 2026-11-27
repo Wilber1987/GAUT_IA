@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using BusinessLogic.IAModule.AgentsModules.Models;
 
 namespace BusinessLogic.IA.Providers
 {
@@ -24,6 +25,19 @@ namespace BusinessLogic.IA.Providers
         /// </summary>
         /// <param name="prompt">Prompt completo (incluye contexto RAG si aplica).</param>
         /// <returns>Texto generado o null si hubo error.</returns>
-        Task<string?> GetCompletionAsync(string prompt, List<ChatMessage> messages);
+        Task<string?> GetCompletionAsyncNormal(
+            string? systemPrompt,
+            List<ChatMessage> messages,
+            string? jsonSchema = null,
+            double temperature = 0.7,          // ← nuevo parámetro, default compatible
+            int? maxTokens = null);
+
+        Task<CompletionResult> GetCompletionAsync(
+            string? systemPrompt,
+            List<ChatMessage> messages,
+            string? jsonSchema = null,
+            double temperature = 0.7,
+            int? maxTokens = null
+        );
     }
 }

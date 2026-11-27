@@ -8,7 +8,7 @@ namespace BusinessLogic.Notificaciones_Mensajeria
 {
     public class MessageServices
     {
-        public static ResponseWebApi ProcessMessage(UserMessage unifiedMessage)
+        public static async Task<ResponseWebApi> ProcessMessage(UserMessage unifiedMessage)
         {
             if (unifiedMessage != null && unifiedMessage?.Text != null)
             {
@@ -17,7 +17,7 @@ namespace BusinessLogic.Notificaciones_Mensajeria
                 {
                     case SourceTypeEnum.WEB_API:
                         // Procesar inmediatamente para webapi
-                        var resp = EnqueueMessageWebApi(unifiedMessage, SourceTypeEnum.WEB_API);
+                        var resp = await EnqueueMessageWebApi(unifiedMessage, SourceTypeEnum.WEB_API);
                         ResponseWebApi reply = new ResponseWebApi()
                         {
                             Reply = resp.MessageIA,
@@ -25,6 +25,8 @@ namespace BusinessLogic.Notificaciones_Mensajeria
                             ProfileName = "IA",
                             Id_Case = resp.Id_case,
                             Id_Comment = resp.Id_comment,
+                            Id_Run = resp.Id_Run,
+                            Token = resp.Token
                         };
                         // Respuesta inmediata para webapi
                         return reply;
@@ -34,15 +36,41 @@ namespace BusinessLogic.Notificaciones_Mensajeria
             }
             throw new Exception("Unsupported platform source.");
         }
+        public static async Task<ResponseWebApi> ProcessMessageAsync(UserMessage unifiedMessage)
+        {
+            if (unifiedMessage != null && unifiedMessage?.Text != null)
+            {
 
-        private static UserMessage EnqueueMessageWebApi(UserMessage message, SourceTypeEnum source)
-		{
+                switch (unifiedMessage?.Source)
+                {
+                    case SourceTypeEnum.WEB_API:
+                        // Procesar inmediatamente para webapi
+                        var resp = await EnqueueMessageWebApi(unifiedMessage, SourceTypeEnum.WEB_API);
+                        ResponseWebApi reply = new ResponseWebApi()
+                        {
+                            
+                            Reply = resp.MessageIA,
+                            WithAgentResponse = resp.WithAgentResponse ?? false,
+                            ProfileName = "IA",
+                            Id_Case = resp.Id_case,
+                            Id_Comment = resp.Id_comment,
+                            Id_Run = resp.Id_Run,
+                            Token = resp.Token,
+                            MessageIAResponse = resp.MessageIAResponse,
+                            TokenUsage = resp.TokenUsage
+                        };
+                        // Respuesta inmediata para webapi
+                        return reply;
+                    default:
+                        throw new Exception("Unsupported platform source.");
+                }
+            }
+            throw new Exception("Unsupported platform source.");
+        }
+        private static async Task<UserMessage> EnqueueMessageWebApi(UserMessage message, SourceTypeEnum source)
+        {
             message.Source = source;
-			var instanceIA = new ApiChatProcessorServices();
-			// Ejecutar asincronía sincrónicamente usando GetAwaiter().GetResult()
-			var response = instanceIA.GenerateResponse(message).GetAwaiter().GetResult();
-			//new WSocketSignalService(_hubContext).SendCaseCommentSignal(message);
-			return response;
-		}
+            return await new ApiChatProcessorServices().GenerateResponse(message);
+        }
     }
 }

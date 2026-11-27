@@ -11,6 +11,7 @@ using CAPA_NEGOCIO.SystemConfig;
 using APPCORE.SystemConfig;
 using APPCORE.Services;
 using BusinessLogic.Notificaciones_Mensajeria.Gestion_Mensajeria.Model;
+using BusinessLogic.IA.Agent;
 
 namespace CAPA_NEGOCIO
 {
@@ -50,7 +51,9 @@ namespace CAPA_NEGOCIO
 				else
 				{
 					//CUANDO ENTRA LA IA REALMENTE
-					var IAResponse = await new IAService().Chat(question);
+					UserMessage IAResponse = question.AgentMode
+						? await new AgentOrchestrator().Run(question)
+						: await new IAService().Chat(question);
 					AddComment(IAResponse);
 					return IAResponse;
 				}
@@ -70,7 +73,7 @@ namespace CAPA_NEGOCIO
 		}
 
 		public static void AddComment(UserMessage interaction, bool isSystem = false)
-		{			
+		{
 			if (interaction.Token == null)
 			{
 				interaction.Token = Guid.NewGuid().ToString();
@@ -81,7 +84,7 @@ namespace CAPA_NEGOCIO
 			);
 			if (conversacion == null)
 			{
-				conversacion =  new Tbl_Comments_Conversations
+				conversacion = new Tbl_Comments_Conversations
 				{
 					CreatedAt = DateTime.Now,
 					Token = interaction.Token,
@@ -91,7 +94,7 @@ namespace CAPA_NEGOCIO
 			}
 
 			ModelFiles? Response = null;
-			if (interaction.Source == SourceTypeEnum.WEB_API)
+			if (interaction.Source == SourceTypeEnum.WEB_API && interaction.Attach != null)
 			{
 				Response = (ModelFiles)FileService.upload(SystemConfigImpl.GetMediaAttachPath(), interaction.Attach).body;
 			}
@@ -107,6 +110,7 @@ namespace CAPA_NEGOCIO
 				Attach_Files = Response == null ? [interaction.Attach] : [Response],
 				Token = interaction.Token,
 				Id_conversacion = conversacion?.Id_Conversacion
+
 			}.Save() as Tbl_Comments;
 
 			interaction.Id_comment = us?.Id_Comentario;
@@ -122,7 +126,9 @@ namespace CAPA_NEGOCIO
 						Estado = CommetsState.Leido,
 						Mail = "traking_system@soporte.net",
 						Token = interaction.Token,
-						Id_conversacion = conversacion?.Id_Conversacion
+						Id_conversacion = conversacion?.Id_Conversacion,
+						TokenUsage = interaction.TokenUsage,
+						MessageIAResponse = interaction.MessageIAResponse
 					};
 					ia.Save();
 				}
@@ -136,7 +142,9 @@ namespace CAPA_NEGOCIO
 						Estado = CommetsState.Leido,
 						Mail = "IA@soporte.net",
 						Token = interaction.Token,
-						Id_conversacion = conversacion?.Id_Conversacion
+						Id_conversacion = conversacion?.Id_Conversacion,
+						TokenUsage = interaction.TokenUsage,
+						MessageIAResponse = interaction.MessageIAResponse
 					};
 					ia.Save();
 				}

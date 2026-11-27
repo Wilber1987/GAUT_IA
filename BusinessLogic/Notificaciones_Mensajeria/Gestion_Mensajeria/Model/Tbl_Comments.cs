@@ -22,11 +22,15 @@ namespace CAPA_NEGOCIO.MAPEO
 		public int? Id_Case { get; set; }
 		public int? Id_User { get; set; }
 		public DateTime? Fecha { get; set; }
-        public bool? IsVectorized { get; set; }
-		public string? Token { get;  set; }
+		public bool? IsVectorized { get; set; }
+		public string? Token { get; set; }
 		public int? Id_conversacion { get; set; }
+		[JsonProp]
+		public AgentTokenUsage? TokenUsage { get; set; }
+		[JsonProp]
+		public List<IAInteractions>? MessageIAResponse { get; set; } = []; // Contenido del mensaje del usuario
 
-        public async Task<ResponseService> SaveComment(string identity, Boolean withMail = true)
+		public async Task<ResponseService> SaveComment(string identity, Boolean withMail = true)
 		{
 			try
 			{
@@ -51,7 +55,7 @@ namespace CAPA_NEGOCIO.MAPEO
 				if (withMail)
 				{
 					CreateMailForComment(user);
-				}				
+				}
 				// Confirmar transacción
 				return new ResponseService(200, "mensaje guarado", this);
 			}
@@ -65,11 +69,11 @@ namespace CAPA_NEGOCIO.MAPEO
 		}
 
 
-	
+
 
 		public void CreateMailForComment(UserModel user)
 		{
-			List<string?> toMails = [];		
+			List<string?> toMails = [];
 			if (Mails != null)
 			{
 				toMails.AddRange(Mails);
@@ -86,16 +90,16 @@ namespace CAPA_NEGOCIO.MAPEO
 			}.Save();
 		}
 		public List<Tbl_Comments> GetComments()
-		{			
+		{
 			return Where<Tbl_Comments>(
 				FilterData.Equal("Token", this.Token)
-			);	
+			);
 		}
 		public List<Tbl_Comments> GetCommentsByCase()
-		{			
+		{
 			return Where<Tbl_Comments>(
 				FilterData.Equal("Id_Case", this.Id_Case)
-			);	
+			);
 		}
 	}
 	public enum CommetsState

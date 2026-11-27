@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using APPCORE;
 using APPCORE.SystemConfig;
 using BusinessLogic.ApiChat.AutomaticIAOllama.Model;
+using BusinessLogic.IAModule.AgentsModules.Models;
 using CAPA_NEGOCIO.SystemConfig;
 
 namespace BusinessLogic.IA.Providers
@@ -76,5 +77,21 @@ namespace BusinessLogic.IA.Providers
 
         private static HttpClient CreateClient() =>
             new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
+
+        public Task<string?> GetCompletionAsynca(string? systemPrompt, List<ChatMessage> messages, string? jsonSchema = null, double temperature = 0.7, int? maxTokens = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<CompletionResult> IIAProvider.GetCompletionAsync(string? systemPrompt, List<ChatMessage> messages, string? jsonSchema, double temperature, int? maxTokens)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string?> GetCompletionAsyncNormal(string? systemPrompt, List<ChatMessage> messages, string? jsonSchema = null, double temperature = 0.7, int? maxTokens = null)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

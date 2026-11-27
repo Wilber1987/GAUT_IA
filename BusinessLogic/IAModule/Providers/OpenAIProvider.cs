@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using APPCORE;
 using APPCORE.SystemConfig;
 using BusinessLogic.IA.Models;
+using BusinessLogic.IAModule.AgentsModules.Models;
 using CAPA_NEGOCIO.SystemConfig;
 
 namespace BusinessLogic.IA.Providers
@@ -77,5 +78,21 @@ namespace BusinessLogic.IA.Providers
                 new AuthenticationHeaderValue("Bearer", _apiKey);
             return client;
         }
+
+        public Task<string?> GetCompletionAsync(string? systemPrompt, List<ChatMessage> messages, string? jsonSchema = null, double temperature = 0.7, int? maxTokens = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<CompletionResult> IIAProvider.GetCompletionAsync(string? systemPrompt, List<ChatMessage> messages, string? jsonSchema, double temperature, int? maxTokens)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string?> GetCompletionAsyncNormal(string? systemPrompt, List<ChatMessage> messages, string? jsonSchema = null, double temperature = 0.7, int? maxTokens = null)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

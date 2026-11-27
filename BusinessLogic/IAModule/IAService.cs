@@ -117,7 +117,7 @@ namespace BusinessLogic.IA
 
             messages.Add(new ChatMessage { Role = "user", Content = request.Text });
 
-            request.MessageIA = await _provider.GetCompletionAsync(systemPrompt, messages);
+            request.MessageIA = await _provider.GetCompletionAsyncNormal(systemPrompt, messages);
 
             /*string promptFinal = $@"Eres un asistente de ayuda. Usa este contexto para responder: {promptContexto} Pregunta del usuario: {request.Text}";
 

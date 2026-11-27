@@ -25,7 +25,7 @@ namespace UI.SSMP_IA.ApiControllers
 		// {
 		// 	//_hubContext = hubContext;
 		// }
-		private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(100); // Limitar a 10 tareas simultáneas
+		//private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(100); // Limitar a 10 tareas simultáneas
 
 		[HttpPost]
 		[AuthController]
@@ -33,7 +33,8 @@ namespace UI.SSMP_IA.ApiControllers
 		{
 			try
             {
-                return Ok(MessageServices.ProcessMessage(unifiedMessage));
+                //return Ok(MessageServices.ProcessMessage(unifiedMessage));
+				return Ok(await MessageServices.ProcessMessageAsync(unifiedMessage));
             }
             catch (Exception ex)
 			{

@@ -1,0 +1,11 @@
+{
+  "importRoots": {
+    "proyectos": "D:\\Workspaces\\Proyectos",
+    "documentacion": "D:\\Workspaces\\Docs"
+  },
+  "allowedExtensions": [".js", ".ts", ".cs", ".json", ".md", ".txt", ".html", ".css", ".sql", ".csv", ".xml", ".py"],
+  "maxFileBytes": 262144,
+  "maxFilesPerWorkspace": 200,
+  "maxImportDepth": 4,
+  "ignoredFolders": ["bin", "obj", "node_modules", ".git"]
+}

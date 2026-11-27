@@ -5,12 +5,11 @@ import { Tbl_Comments_Conversations } from "../Notificaciones_Mensajeria/Gestion
 import { WSecurity } from "../WDevCore/Security/WSecurity.js";
 import { StylesControlsV2, StylesControlsV3, StyleScrolls } from "../WDevCore/StyleModules/WStyleComponents.js";
 import { WAppNavigator } from "../WDevCore/WComponents/WAppNavigator.js";
-import { WAgentChatComponent } from "../WDevCore/WComponents/WAgentChatComponent.js";
+import { WAgentChatComponent } from "../IAAgent/WAgentChatComponent.js";
 import { FilterData } from "../WDevCore/WModules/CommonModel.js";
 import { ComponentsManager, generateGUID, html, WRender } from "../WDevCore/WModules/WComponentsTools.js";
 import { css } from "../WDevCore/WModules/WStyledRender.js";
-
-
+import { WAgentContextPanel } from "../IAAgent/WAgentContextPanel.js";
 /**
  * @typedef {Object} ComponentConfig
  * * @property {Object} [propierty]
@@ -54,7 +53,7 @@ export class WebChatView extends HTMLElement {
         this.OptionContainer.innerHTML = "";
         this.OptionContainer.append(html`<button class="conversation-btn new-conversation" onclick="${() => {
             const token = generateGUID()
-            this.Manager.NavigateFunction(token, this.ChargeChat(token, []))
+            this.Manager.NavigateFunction("name" + token, this.ChargeChat(token, []))
         }}"></button>`)
         conversations.forEach(conversation => {
             const displayName = conversation.Nombre || "Sin nombre";
@@ -76,7 +75,7 @@ export class WebChatView extends HTMLElement {
         /**@type {Array<Tbl_Comments>} */
         const history = await new Tbl_Comments({ Token: conversation.Token }).Get();
         console.log("conversation" + conversation.Id_Conversacion);
-        
+
         this.Manager.NavigateFunction("conversation" + conversation.Id_Conversacion, this.ChargeChat(conversation.Token, history));
     }
 
@@ -87,9 +86,17 @@ export class WebChatView extends HTMLElement {
      * @param {string} token
      * @param {Tbl_Comments[]} history
      */
+    /**
+ * @param {string} token
+ * @param {Tbl_Comments[]} history
+ */
     ChargeChat(token, history) {
-        console.log(WSecurity.UserData);
-        return new WAgentChatComponent({
+        const contextPanel = new WAgentContextPanel({
+            Token: token,
+            UserId: WSecurity.UserData.mail,
+            ApiBase: "../api"
+        });
+        const chat = new WAgentChatComponent({
             Url: "../api/WebhookSsmpIA",
             UrlGetConfigData: "../api/ApiEntityHelpdesk/getTbl_CommentsWeb",
             UrlSearch: "../api/ApiEntityHelpdesk/getTbl_CommentsWeb",
@@ -99,8 +106,12 @@ export class WebChatView extends HTMLElement {
             CommentsIdentify: token ?? generateGUID(),
             CommentsIdentifyName: "Token",
             AddObject: false,
-            IdentityValue: WSecurity.UserData.mail
-        })
+            IdentityValue: WSecurity.UserData.mail,
+            AgentMode: true,
+            AgentApiBase: "../api",
+            ContextPanel: contextPanel
+        });
+        return html`<div class="agent-workspace-layout">${chat}${contextPanel}</div>`;
     }
 
 
@@ -196,6 +207,15 @@ export class WebChatView extends HTMLElement {
         .conversation-btn:hover::after {
             opacity: 1;
             transform: scale(1.5);
+        }
+        .agent-workspace-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            height: 100%;
+            overflow: hidden;
+        }
+        @media (max-width: 1100px) {
+            .agent-workspace-layout { grid-template-columns: minmax(0, 1fr) 260px; }
         }
     `
 }
